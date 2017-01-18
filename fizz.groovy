@@ -9,11 +9,11 @@ for(i=1; i<=100; i++){
         else
             println "numero ${i}"
 }*/
-lista= 1..100
+lista= 0..100
 
-/*e = { if(((lista[it]%3)||(lista[it]%5))==0)
+e = { if(((lista[it]%3)||(lista[it]%5))==0)
 		println "FizzBuzz"
-        else if((ilista[it]%3)==0)
+        else if((lista[it]%3)==0)
             println "Fizz"
         else if((lista[it]%5)==0)
             println "Buzz"
@@ -22,27 +22,6 @@ lista= 1..100
 
 lista.each(){
 	
-	e
-
-}*/
-
-def fizz = []
-def buzz = []
-def fibu = []
-
-e = { if(((lista[it]%3)||(lista[it]%5))==0)
-		fizz.add(it)
-        else if((ilista[it]%3)==0)
-            buzz.add(it)
-        else if((lista[it]%5)==0)
-            fibu.add(it)
-        else
-            println lista[it]}
-
-lista.each(){
-	
-	e
+	e(it)
 
 }
-println lista
-println fizz[2]
