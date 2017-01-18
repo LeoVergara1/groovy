@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+    <div class="container">
+      <h1>El lenguaje dinámico Groovy</h1>
+      <div style="height:70px"> 
+        <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+        <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+        <p id="p3">“Making best code, through better developers”</p>
+      </div>
+    </div>
+ </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>Patrones con Closures</h1>
+<hr/><p>Los closures parecen ser un mecanismo conveniente para definir algo como una clase interna, pero la semántica es, de hecho, más poderosa y sutil de lo que ofrece una clase interna. En particular, las propiedades de los closures pueden resumirse de este modo:</p>
+<ul>
+  <li>Tienen un método implícito(el cual nunca es específicado en la definición del closure) llamado <code>doCall()</code></li>
+  <li>Un closure tal vez sea invocado vía el método <code>call()</code>, o con una sintaxis especial de una invocación sin nombre (). Cualquier invocación será traducida por Groovy en una llamada al método <code>doCall()</code> del closure.</li>
+  <li>Los closures quizá tengan de 1..n argumentos, los cuales quizá sean tipados estáticamente o sin tipar. El primer parámetro está disponible vía un argumento sin tipar implícito de nombre <strong>it</strong>, si no hay argumentos explícitamente nombrados. Si el invocador no específica argumento alguno, el primer parámetro será nulo.</li>
+  <li>El desarrollador no tiene que usar <strong>it</strong> como el primer parámetro. Si lo desea puede usar un nombre diferente, y puede especificarlo en la lista de parámetros.</li>
+  <li>Los closures siempre regresan un valor. Esto puede ocurrir ya sea a través de una sentencia <em>return</em> explícita, o como el valor de la última sentencia en el cuerpo del closure.</li>
+  <li>Un closure puede referenciar cualquier variable definida dentro del ambiente del alcance léxico, cualquiera de estas se dice que está atada al closure.</li>
+  <li>Cualquier variable atada a un closure están disponibles para el mismo incluso si el closure mismo es regresado fuera del alcance.</li>
+  <li>Los closures son objetos de primera clase en Groovy, y son siempre derivados de la clase <em>Closure</em>. Y este puede ser definido a través de tipado dinámico o de una subclase tipada de la jerarquía de Closure.</li>
+  <li>El cuerpo del closure no es ejecutado hasta que es explícitamente invocado, es decir, no es invocado en tiempo de ejecución.</li>
+  <li>Un closure puede estar con <strong>curry</strong> de modo que una copia del closure está hecha con uno o más de sus parámetros fijados a un valor constante.</li>
+</ul>
+<div id="1"></div><h2>Implementación de interfaces</h2>
+<div class="alert alert-info">
+  <strong><i class="icon-terminal"></i> La clave es...!</strong> El uso de la palabra reservada <b>'as'</b> para forzar un closure al tipo.
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> closure_interfaz.groovy</h4>
+    <pre class="brush: groovy">
+      //Incluso podemos implementar interfaces al vuelo sin necesidad de desarrollarlas todas
+      import javax.swing.*
+      import java.awt.*
+      import java.awt.event.*
+
+      // Incluso la palabra def es opcional
+      frame = new JFrame(size:[300,300],layout:new FlowLayout(), defaultCloseOperation:javax.swing.WindowConstants.EXIT_ON_CLOSE)
+
+      // Creamos unos componentes
+      button = new JButton("Click")
+      positionLabel = new JLabel("")
+      msgLabel = new JLabel("")
+      // Los agregamos
+      frame.contentPane.add button
+      frame.contentPane.add positionLabel
+      frame.contentPane.add msgLabel
+      frame.contentPane.add new JTextField("Texto")
+
+      // usemos los closures para agregar un listener
+      button.addActionListener(
+        { JOptionPane.showMessageDialog(frame,"You clicked!") } as ActionListener
+      )
+
+      // Definamos un closure por fuera
+      displayMouseLocation = { positionLabel.setText("$it.x , $it.y") }
+      // Vamos a agregarlo al listener
+      frame.addMouseListener( displayMouseLocation as MouseListener )
+      frame.addMouseMotionListener( displayMouseLocation as MouseMotionListener )
+
+      // Vamos a definir un objeto del tipo Map al estilo Groovy
+      handleFocus = [
+        focusGained : { msgLabel.setText "Good 2 see you..." },
+        focusLost : { msgLabel.setText "Come back soon!!!..." }
+      ]
+      // Lo usamos para otro listener
+      button.addFocusListener( handleFocus as FocusListener )
+
+      // Definimos una lista de eventos como Strings
+      events = [ 'WindowListener','ComponentListener' ]
+
+      // Un closure que es un handler
+      handler = { msgLabel.setText "$it" }
+
+      // Iteramos la lista
+      // Llamada a métodos formados de manera dinámica en tiempo de ejecución
+      for(event in events){
+        handlerImpl = handler.asType(Class.forName("java.awt.event.${event}")) 
+        frame."add${event}"(handlerImpl)
+      }
+
+      // Lo mostramos !!! :D
+      frame.show()
+    </pre>
+  </div>
+</div>
+<div id="2"></div><h2>Manejo de recursos</h2>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file-alt"></i> closure_resources.groovy</h4>
+    <pre class="brush: groovy">
+      //Usemos los closures para manejar recursos
+      //definimos un metodo con unos cuantos metodos que manejen un archivo
+      class ResourceWithoutManagement{
+        def open() { println "opened..." }
+        def close() { println "closed..." }
+        def read() { println "readed..." }
+        def write() { println "writed..." }
+      }
+
+      //instanciemos un objeto
+      def resource = new ResourceWithoutManagement()
+      resource.open()
+      resource.read()
+      resource.write()
+      //no cerramos el recurso :S seguro mandara algun error
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file-alt"></i> closure_resources.groovy</h4>
+    <pre class="brush: groovy">
+      //Manejemos el recurso para que abra y cierre por si solo
+      class ResourceWithManagement{
+        def open() { println "opened..." }
+        def close() { println "closed..." }
+        def read() { println "readed..." }
+        def write() { println "writed..." }
+        
+        def static use(closure){
+          def r = new ResourceWithManagement()
+          try{
+            r.open()
+            closure(r)
+          }finally{
+            r.close()
+          }
+        }
+      }
+
+      println "Manejando el recurso..."
+      ResourceWithManagement.use { res ->
+        res.read()
+        res.write()
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> DB Resources</h4>
+    <pre class="brush: groovy">
+      import groovy.sql.*
+      import com.mchange.v2.c3p0.ComboPooledDataSource
+
+      class DB {
+
+        def sqlMySQL
+
+        private DB() {
+
+          ComboPooledDataSource mysql = new ComboPooledDataSource(
+            driverClass:DBParameters.MYSQL_PARAMS.driver,
+            jdbcUrl:DBParameters.MYSQL_PARAMS.url,
+            user:DBParameters.MYSQL_PARAMS.user,
+            password:DBParameters.MYSQL_PARAMS.password,
+            minPoolSize: 5,
+            maxPoolSize: 80,
+            acquireIncrement: 10,
+            numHelperThreads:40
+            );
+          sqlMySQL = Sql.newInstance(mysql)
+        }
+
+        def withMySQLInstance(closure){
+          closure(sqlMySQL)
+        }
+
+      }
+
+      def query = "select 2+2 as SUMA"
+
+      DB.instance.withMySQLInstance { sql ->
+        assert sql.firstRow(query)[0] == 4
+      }
+    </pre>
+  </div>
+</div>
+<div id="3"></div><h2>Curry en closures</h2><p>El <strong>curry</strong> es una técnica inventada por Moses Schönfinkel and Gottlob Frege, y nombrada despúes por el lógico Haskell Brooks Curry, uno de los pioneros en programación funcional. La idea básica es tomar una función con múltiples parámetros y transformarla en una función con pocos parámetros fijando algunos valores. </p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Curry clásico</h4>
+    <pre class="brush: groovy">
+      def adder = { x, y -> return x + y }
+      def addOne = adder.curry(1)
+      assert addOne(5) == 6
+    </pre>
+  </div>
+</div>
+<div class="alert alert-success">
+  <strong><i class="icon-eye-open"></i> Importante!</strong> El verdadero poder del curry viene cuando los parámetros del curry son closures.
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Curry con parámetros</h4>
+    <pre class="brush: groovy">
+      def multiplo = { x, y -> return x * y }  // closure
+      def triple = multiplo.curry(3) 
+      // triple = { y -> return 3 * y }
+      def cuadruple = multiplo.curry(4) 
+      // cuadruple = { y -> return 4 * y }
+      def f1 = triple.call(4) // llamada explícita
+      def f2 = cuadruple(5)   // llamada implícita
+      println "ƒ(3x) = ${f1}"
+      println "ƒ(4x) = ${f2}"
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Composición curry con closures</h4>
+    <pre class="brush: groovy">
+      def multiplo = { x, y -> return x * y } // closure
+      def triple = multiplo.curry(3)            
+      // triple = { y -> return 3 * y }
+      def cuadruple = multiplo.curry(4) 
+      // cuadruple = { y -> return 4 * y }
+      def composicion = { f, g, x -> return f(g(x)) }
+      def _12veces = composicion.curry(triple, cuadruple)
+      def _3docenas = _12veces(3)
+      println "ƒ(4(3(x))) = ${_3docenas}"
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Logger - curry con closures</h4>
+    <pre class="brush: groovy">
+      def configurator = { format, filter, line ->
+       filter(line) ?  format(line) : null
+      }
+      def appender = { config, append, line ->
+        def out = config(line)
+        if (out) append(out)
+      }
+
+      def dateFormatter   = { line -> "${new Date()}: $line" }
+      def debugFilter     = { line -> line.contains('debug') }    
+      def consoleAppender = { line -> println line }
+
+      def myConf = configurator.curry(dateFormatter, debugFilter)
+      def myLog  = appender.curry(myConf, consoleAppender)
+      myLog('aquí hay un mensaje de debug')
+      myLog('este mensaje no se va a mostrar')
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Lectura recomendada!</h4>
+  <p>Si deseas aprender un poco más del uso de curry puedes leer <a href="http://www.ibm.com/developerworks/library/j-pg08235/" class="alert-link">Practically Groovy: Functional programming with curried closures</a>.</p>
+</div>
+<div id="4"></div><h2>Closures dinámicos</h2>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Closure faltante</h4>
+    <pre class="brush: groovy">
+      def dataSourceQuery(query){
+        println "Ejecutando ${query}"
+      }
+
+      def consultaClientesSQL(consulta){
+        if(consulta)
+        dataSourceQuery(consulta())
+        else
+        dataSourceQuery("SELECT * FROM cliente")
+      }
+
+      consultaClientesSQL()
+      consultaClientesSQL { 
+        "SELECT nombre FROM cliente WHERE id = 1" 
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Explorando un closure</h4>
+    <pre class="brush: groovy">
+      def calculaIVAConIETU(monto,calculo){
+        if(calculo.maximumNumberOfParameters == 2)
+          calculo(monto, 1.11) // IETU
+        else
+          calculo(monto) // IVA
+      }
+
+      println calculaIVAConIETU(100) { it * 1.16 }
+      println calculaIVAConIETU(100) { monto, ietu -> 
+        monto * 1.16 * ietu 
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Tipos de parámetros en el closure</h4>
+    <pre class="brush: groovy">
+      def examine(closure) {
+        println "$closure.maximumNumberOfParameters parameter(s) given:" 
+        for(aParameter in closure.parameterTypes) { println aParameter.name }
+        println "--" 
+      }
+      examine() { }
+      examine() { it }
+      examine() {-> }
+      examine() { val1 -> }
+      examine() {Date val1 -> }
+      examine() {Date val1, val2 -> } examine() {Date val1, String val2 -> }
+    </pre>
+  </div>
+</div>
+<div id="5"></div><h2>Programación recursiva</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Factorial</h4>
+    <pre class="brush: groovy">
+      def factorial(BigInteger number) {
+        number == 1 ? 1 : number * factorial(number - 1)
+      }
+      try {
+      println "factorial of 5 is ${factorial(5)}"
+      println "Number of bits in the result is ${factorial(5000).bitCount()}"
+      } catch(Throwable ex) {
+        println "Caught ${ex.class.name}"
+      }
+    </pre>
+  </div>
+</div><h3>Trampoline para programación recursiva</h3><p><code>public Closure&lt;V&gt; trampoline()</code> Construye una variante <em>trampoline</em> del closure actual. Para evitar el desbordamiento de la pila debido a la profundidad de la recursividad, las funciones pueden aprovechar el mecanismo de trampolín y evitar las llamadas recursivas por completo. La función supone efectuar paso por paso el cálculo, en lugar de la llamada recursiva u otra función, regresa un nuevo closure, el cual será ejecutado por el <code>trampoline()</code> en el siguiente paso. Una vez que ningún closure es regresado entonces el <em>trampoline</em> para y regresa el valor del resultado final.</p>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Lectura recomendada</h4>
+  <p>Basado en el Libro <b>Structure and Interpretation of Computer Programs</b> podemos diferenciar entre el procedimiento y el proceso que se generan en un elemento recursivo y podemos repensar nuestra forma de escribir nuestro código basado en estos principios, <em>Véase: <a href="http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-11.html#%_sec_1.2">Procedures and the Processes They Generate</a>.</em></p>
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Factorial</h4>
+    <pre class="brush: groovy">
+      def factorial
+      factorial = { int number, BigInteger theFactorial -> 
+          number == 1 ? 
+              theFactorial : 
+              factorial(number - 1, number * theFactorial)
+      }
+      println "factorial of 5 is ${factorial(5, 1)}"
+      println "Number of bits in the result is ${factorial(5000, 1)}"
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Factorial con trampoline</h4>
+    <pre class="brush: groovy">
+      def factorial
+      factorial = { int number, BigInteger theFactorial -> 
+          number == 1 ? 
+              theFactorial : 
+              factorial.trampoline(number - 1, number * theFactorial)
+      }.trampoline()
+      println "factorial of 5 is ${factorial(5, 1)}"
+      println "Number of bits in the result is ${factorial(5000, 1)}"
+    </pre>
+  </div>
+</div>
+<div id="6"></div><h2>Mejor rendimiento</h2>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Medimos el tiempo</h4>
+    <pre class="brush: groovy">
+      def tiempo(posicion, funcion) {
+       def comienzo = System.nanoTime()
+       def resultado = funcion(posicion)
+       def fin = System.nanoTime()
+       def tiempoTotal = String.format("%.2f sec", (fin - comienzo)/1.0e9)
+       println "Fibonacci($posicion): $resultado, tiempo total: $tiempoTotal"
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Fibonnaci v1</h4>
+    <pre class="brush: groovy">
+      def fibonacci(posicion) {
+        if (posicion < 2)
+          1
+        else
+          fibonacci(posicion - 1) + fibonacci(posicion - 2)
+      }
+
+      tiempo(8) { posicion -> fibonacci(posicion)}
+      //tiempo(30) { posicion -> fibonacci(posicion)}
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Fibonnaci v2</h4>
+    <pre class="brush: groovy">
+      serieFibonacci = [0: 1, 1: 1]
+
+      def fibonacciConSerieAlmacenada(position) {
+        if(!serieFibonacci.containsKey(position))
+          serieFibonacci[position] = fibonacciConSerieAlmacenada(position - 1) + fibonacciConSerieAlmacenada(position - 2)
+        serieFibonacci[position]
+      }
+
+      tiempo(8) { posicion -> fibonacci(posicion) }
+      tiempo(40) { posicion -> fibonacciConSerieAlmacenada(posicion)}
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Fibonnaci v3</h4>
+    <pre class="brush: groovy">
+      def fibonacci 
+      fibonacci = { posicion ->
+        posicion < 2 ? 1 : fibonacci(posicion - 1) + fibonacci(posicion - 2)
+      }.memoize()
+
+      tiempo(8) { posicion -> fibonacci(posicion) }
+      tiempo(40) { posicion -> fibonacci(posicion) }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Simple caso práctico</h4>
+    <pre class="brush: groovy">
+      class LugarDao {
+
+        def busquedaLugaresSP
+
+        // Dejar el metodo igual y delegar a closure con memoize
+        def findAllByCampusCode(String name){
+          findAllByCampusCodeMemoize(name)
+        }
+        def findAllByCampusCodeMemoize = { String name ->
+          busquedaLugaresSP.execute([campus:name])."${busquedaLugaresSP.CURSOR_NAME}"
+        }.memoize()
+      }
+    </pre>
+  </div>
+</div>
+<div id="7"></div><h2>Más patrones</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Expose internal state</h4>
+    <pre class="brush: groovy">
+      public class A {
+        private int atributo = 20
+
+        private String metodo()
+        {
+          return "hello"
+        }
+
+        def metodoPublico(String name_)
+        {
+          def localVar = atributo + 5
+          def localVar2 = "Parámetro: ${name_}"
+          return {
+            println "${atributo} ${name_} ${localVar} ${localVar2} ${metodo()}"
+          }
+        }
+      }
+
+      A objeto = new A()
+      def closureVar = objeto.metodoPublico("MakingDevs")
+      closureVar()
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Lectura recomendada</h4>
+  <p>Si necesitas saber más de los patrones con closures en Groovy te recomendamos <em><a href="http://groovy.codehaus.org/Design+Patterns+with+Groovy">Design Patterns with Groovy</a>.</em></p>
+</div>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>

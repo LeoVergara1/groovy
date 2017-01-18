@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+      <div class="container">
+        <h1>Productividad con Groovy</h1>
+        <div style="height:70px"> 
+          <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+          <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+          <p id="p3">“Making best code, through better developers”</p>
+        </div>
+      </div>
+   </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>Elementos de paralelización</h1>
+<hr/><p>Tu trabajo como desarrollador de software es tener las partes secuenciales de tu código de forma correcta, incluyendo sus casos de prueba. Cuando la concurrencia es requerida, podemos escoger alguna de las herramientas disponibles, simplemente pasando el código secuencial para la ejecución. Sin embargo, hay que entender algunos conceptos para aplicar la herramienta adecuada para la situación. No necesitamos entender los trabajos internos de cada implementación, sólo necesitamos entender las aproximaciones y sus restricciones.</p>
+<blockquote>
+  <p> <code>parallel != concurrent</code> </p>
+</blockquote><p>Asumamos(pero que quede entre nosotros los desarrolladores) antes de empezar algunas cosas:</p>
+<ul>
+  <li>Sabemos usar Groovy en su forma elemental</li>
+  <li>Queremos escribir programas empleando concurrencia y paralelismo</li>
+  <li>Si no usas código Groovy, entonces debes pagar el precio</li>
+  <li>Tienes hardware con varios núcleos para tu código</li>
+  <li>Debes saber que el código concurrente y paralelo puede ejecutarse en cualquier momento, en cualquier oden, y con muchas probabilidades de que pasen al mismo tiempo.</li>
+</ul>
+<blockquote>
+  <p> GPars es un framework de concurrencia multi-paradigma, que ofrece varias abstracciones de alto nivel de concurrencia mutuamente cooperativa, como son operadores Dataflow, Promises, CSP, Actors, Funciones Asíncronas, Agentes y colecciones paralelas.</p>
+</blockquote>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Threads en groovy</h4>
+    <pre class="brush: groovy">
+      def thread = Thread.start { println "I'm in a new thread" }
+      thread.join()
+    </pre>
+  </div>
+</div><p>La introducción del paquete <code>java.util.concurrent</code>trajo muchas mejoras incluyendo el pool de hilos, el framework exexcutor, y muchos tipos de datos con soporte para el acceso concurrente. El uso de <code>volatile</code> y <code>synchronized</code> requieren un conocimiento avanzado de la memoria en Java y del modelado de hilos, el cual, es delicado.</p><p>Distribuir el cómputo sobre mucho núcleos, procesadores, o incluso en máquinas remotas es lo que llamamos <strong>paralelismo</strong>. La <strong>concurrencia</strong> va más allá del paralelismo. Nos permite acceso asíncrono a la base de datos, el sistema de archivos, dispositivos externos, la red, y procesos foráneos en general, no importa que sean administrados por el sistema operativo u otras aplicaciones.</p><p>Los conceptos disponibles en <strong>GPars</strong> pueden categorizarse en tres grupos:</p>
+<ol>
+  <li>Helpers a nivel de código. Construyen lo que puede ser aplicado a pequeñas partes del código base como algoritmos individuales o estructuras de datos sin cambios mayores en la organización del proyecto.
+  <ul>
+    <li>Colecciones paralelas</li>
+    <li>Procesamiento asíncrono</li>
+    <li>Fork/Join</li>
+  </ul></li>
+  <li>Conceptos a nivel de arquitectura. Construyen lo necesario a ser tomado en cuenta cuando se diseña la estructura del proyecto.
+  <ul>
+    <li>Actores</li>
+    <li>Procesos de comunicación secuencial(CSP)</li>
+    <li>Dataflow</li>
+    <li>Paralelismo de datos</li>
+  </ul></li>
+  <li>Protección de estado compartido mutable. Aunque el 95% de los usos actuales de estado mutable compartido puede ser evitado usando las abstracciones apropiadas, buenas abstracciones son todavía necesarias para el 5% restante de los casos, cuando el estado mutable compartido no puede ser evitado.
+  <ul>
+    <li>Agentes</li>
+    <li>Memoria de software transaccional(No implementado en GPars aún)</li>
+  </ul></li>
+</ol>
+<div id="1"></div><h2>Procesamiento de colecciones concurrentes</h2>
+<div class="row">
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> listas_paralelas.groovy</h4>
+    <pre class="brush: groovy">
+      def procesos = [ 300, 500, 400, 100, 700, 800, 900, 200 ]
+      benchmark {
+        procesos.each { t ->
+          Thread.sleep(t)
+          println "Terminando el Job que tardó ${t}"
+        }
+      }
+    </pre>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> listas_paralelas.groovy</h4>
+    <pre class="brush: groovy">
+      import static groovyx.gpars.GParsPool.withPool
+
+      def procesos = [ 300, 500, 400, 100, 700, 800, 900, 200 ]
+
+      benchmark {
+        withPool{
+          procesos.eachParallel { t ->
+            Thread.sleep(t)
+            println "Terminando el Job que tardó ${t}"
+          }
+        }
+      }
+    </pre>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-code"></i> Medidor de tiempo</h4>
+    <pre class="brush: groovy">
+      def benchmark(funcion) {
+        def comienzo = System.nanoTime()
+        def resultado = funcion()
+        def fin = System.nanoTime()
+        def tiempoTotal = String.format("%.2f sec", (fin - comienzo)/1.0e9)
+        println "Tiempo total: $tiempoTotal"
+      }
+    </pre>
+  </div>
+</div><h3>Concurrencia transparente</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> calculo_paralelo.groovy</h4>
+    <pre class="brush: groovy">
+      import static groovyx.gpars.GParsPool.withPool
+
+      def numbers = [1,2,3, 4, 5, 6] 
+      def cubos = [1, 8, 27, 64, 125, 216]
+
+      withPool {
+        assert cubos == numbers.collectParallel  { it * it * it }
+      }
+
+
+      withPool {
+        assertCubos(numbers.makeConcurrent(), cubos)
+      }
+      def assertCubos(numbers, cubos) {
+        assert cubos == numbers.collect { it * it * it }
+      }
+
+      def listaDeCubos(numbers,cubos){
+        String result = '' // Mal!
+        numbers.each{ result += it*it*it } // Peor
+        assert cubos.join(',') == result // De la shit!!!
+      }
+
+      def listaDeCubosParalela(numbers,cubos){
+        assert cubos.join('') == numbers.collect{ it * it * it }.join('')
+      }
+    </pre>
+  </div>
+</div><h3>Concurrencia transparente transitiva</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> concurrencia_transitiva.groovy</h4>
+    <pre class="brush: groovy">
+      import static groovyx.gpars.GParsPool.withPool
+      import java.util.concurrent.atomic.AtomicInteger
+
+      // concurrente
+      withPool {
+        final AtomicInteger result = new AtomicInteger(0)
+        [1, 2, 3, 4, 5].eachParallel {result.addAndGet(it)}
+        assert 15 == result
+      }
+      // async
+      withPool {
+        final List result = [1, 2, 3, 4, 5].collectParallel {it * 2}
+        assert ([2, 4, 6, 8, 10].equals(result))
+      }
+
+      // Validacion no concurrente paralela
+      withPool {
+        assert [1, 2, 3, 4, 5].everyParallel {it > 0}
+        assert ![1, 2, 3, 4, 5].everyParallel {it > 1}
+      }
+
+      // transitivo
+      withPool {
+        def numbers = [1, 2, 3, 4, 5, 6].makeConcurrent()
+        def cubosRequeridos = [1, 8, 27, 64]
+        assert cubosRequeridos == numbers.collect { it* it * it }.grep{ it < 100 }
+      }
+
+      withPool {
+          assert ['ELIZA', 'MAKINGDEVS'] == filtroDeNombre(['jose', 'eliza', 'makingdevs', 'Juan'].makeConcurrent())
+      }
+
+      def filtroDeNombre(names) {
+          names.collect {it.toUpperCase()}.findAll{it.size() > 4}
+      }
+    </pre>
+  </div>
+</div><p>Los siguientes métodos son actualmente soportados en todos lo objetos Groovy:</p>
+<ul>
+  <li>eachParallel()</li>
+  <li>eachWithIndexParallel()</li>
+  <li>collectParallel()</li>
+  <li>collectManyParallel()</li>
+  <li>findAllParallel()</li>
+  <li>findAnyParallel</li>
+  <li>findParallel()</li>
+  <li>everyParallel()</li>
+  <li>anyParallel()</li>
+  <li>grepParallel()</li>
+  <li>groupByParallel()</li>
+  <li>foldParallel()</li>
+  <li>minParallel()</li>
+  <li>maxParallel()</li>
+  <li>sumParallel()</li>
+  <li>splitParallel()</li>
+  <li>countParallel()</li>
+  <li>foldParallel()</li>
+</ul><h4>Notas</h4>
+<ul>
+  <li>En adición a <code>find</code>, existe además un método <code>findAny</code>. Mientras <code>find</code> siempre regresa la primera ocurrencia en el orden de su colección, <code>findAny</code> regresará cualquier coincidencia que encuentre.</li>
+  <li>El método del GDK <code>inject</code> es reemplazado por <code>fold</code>.</li>
+  <li>Los métodos de concurrencia transparente son transitivos solamente cuando regresan una colección.</li>
+  <li>No todos los métodos de iteración en Groovy tienen su contraparte concurrente.</li>
+</ul>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> memoize_paralelo.groovy</h4>
+    <pre class="brush: groovy">
+      import static groovyx.gpars.GParsPool.withPool
+
+      withPool {
+        def urls = ['http://grails.org.mx', 'http://springhispano.org', 'http://makingdevs.com']
+        Closure download = {url ->
+          println "Descargando $url"
+          url.toURL().text.toUpperCase()
+        }
+
+        Closure cachingDownload = download.gmemoize() // Evita confusiones con memoize de Groovy
+        
+        println 'Groovy hoy: ' + urls.findAllParallel {url -> cachingDownload(url).contains('GROOVY')}
+        println 'Grails hoy: ' + urls.findAllParallel {url -> cachingDownload(url).contains('GRAILS')}
+        println 'Griffon hoy: ' + urls.findAllParallel {url -> cachingDownload(url).contains('GRIFFON')}
+        println 'Gradle hoy: ' + urls.findAllParallel {url -> cachingDownload(url).contains('GRADLE')}
+        println 'Concurrency hoy: ' + urls.findAllParallel {url -> cachingDownload(url).contains('CONCURRENCY')}
+        println 'GPars hoy: ' + urls.findAllParallel {url -> cachingDownload(url).contains('GPARS')}
+      }
+    </pre>
+  </div>
+</div>
+<div id="2"></div><h2>Map/filter/reduce</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> map_reduce.groovy</h4>
+    <pre class="brush: groovy">
+      import static groovyx.gpars.GParsPool.withPool
+
+      withPool{
+        def urls = ['http://grails.org.mx', 'http://springhispano.org', 'http://makingdevs.com']
+        println 'Número de ocurrencias de GROOVY en todos los sitios: ' + urls.parallel
+          .map {it.toURL().text.toUpperCase()}
+          .filter {it.contains('GROOVY')}
+          .map{it.split()}
+          .map{it.findAll{word -> word.contains 'GROOVY'}.size()}
+          .sum()  
+      }
+
+      withPool {
+        assert 55 == [0, 1, 2, 3, 4].parallel
+          .map { it + 1 }
+          .map { it ** 2 }
+          .reduce { a, b -> a + b }
+      }
+    </pre>
+  </div>
+</div><p>Los métodos <code>____Parallel()</code> tienen que seguir un contrato de sus compañeros no paralelos. Por lo tanto cualquier elemento debe regresar una colección de objetos, la cuál puedes tratar como colección Groovy nuevamente.</p><p>Con Map/Reduce convertimos la colección en un arreglo paralelo y lo regresamos sólo una vez. La familia de métodos Map/Reduce no regresa colecciones Groovy, pero son libres de pasar entre sí el arreglo interno directamente. Invocando la propiedad <code>parallel</code> sobre una colección construiremos un arreglo paralelo y regresaremos un wrapper muy delgado alrededor de la instancia paralela, es por esto que podemos encadenar métodos como:</p>
+<ul>
+  <li>map()</li>
+  <li>reduce()</li>
+  <li>filter()</li>
+  <li>size()</li>
+  <li>sum()</li>
+  <li>min()</li>
+  <li>max()</li>
+  <li>sort()</li>
+  <li>groupBy()</li>
+  <li>combine()</li>
+</ul><h2> DataFlow</h2><p>Ambos fork/join y map/filer/reduce trabajan sobre una colección de tipos de datos que son transformados y procesados. Lo que hace que el flujo de datos sea predecible y permita una implementación eficiente.</p><p>En el caso más general, quizá necesitemos derivar un valor de los datos que son entregados por tareas concurrentes. Para este trabajo, necesitaremos asegurarnos que todas las tareas afectadas son calendarizadas en la secuencia que permite a los datos fluir de la asignación al uso. Puede sonar díficil, pero con Dataflow lo simplificamos.</p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> dataflow.groovy</h4>
+    <pre class="brush: groovy">
+      import groovyx.gpars.dataflow.Dataflows
+      import static groovyx.gpars.dataflow.Dataflow.task
+
+      def flow = new Dataflows()
+      task { flow.result = flow.x + flow.y } 
+      task { flow.x = 10 } 
+      task { flow.y = 5 } 
+      assert 15 == flow.result
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+  GPars ofrece todo el poder del CSP desarrollado en la universidad de KENT,<a href="http://www.cs.kent.ac.uk/projects/ofa/jcsp/">te recomendamos echarle un vistazo</a>.
+  </p>
+</div><p>En esencia, el modelo CSP(Communicating Sequential Process) se construye sobre procesos concurrentes independientes, los cuales se comunican mutuamente a través de <em>canales</em> usando un paso de mensajes síncrono. Desde que el direccionamiento es a través de canales indirectos, los procesos no necesitan saber uno del otro.</p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> dataflow_variable.groovy</h4>
+    <pre class="brush: groovy">
+      import groovyx.gpars.dataflow.DataflowQueue
+      import static groovyx.gpars.dataflow.Dataflow.task
+      import groovyx.gpars.dataflow.DataflowVariable
+
+      def alternative1 = {
+          'http://grails.org.mx'.toURL().text
+      }
+
+      def alternative2 = {
+          'http://springhispano.org'.toURL().text
+      }
+
+      def alternative3 = {
+          'http://www.makkkkingdevs.com/'.toURL().text 
+      }
+
+      def alternative4 = {
+          'http://makingdevs.com'.toURL().text
+      }
+
+      final def result = new DataflowVariable()
+
+      [alternative1, alternative2, alternative3, alternative4].each { code ->
+          task {
+              try {
+                  result << code()
+              } catch (ignore) { }
+          }
+      }
+
+      println result.val.contains('groovy')
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+  Te recomendamos que leas el KanbanFlow de Dierk König en donde habla de <a href="http://people.canoo.com/mittie/kanbanflow.html">un patrón para controlar los Dataflows</a>.
+  </p>
+</div>
+<div id="3"></div><h2>Actors</h2><p>Los actores permiten el paso de mensajes basado en un modelo de concurrencia: los programas son colecciones de objetos activos independientes que intercambian mensajes y no tienen estado mutable compartido. Los actores son una manera de utilizar las capacidades multi-núcleo del hardware de hoy sin los problemas tradicionales asociados con la memoria compartida en el multi procesamiento.</p>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> actores_mensajes.groovy</h4>
+    <pre class="brush: groovy">
+      import static groovyx.gpars.actor.Actors.*
+
+      def decriptor = reactor { code -> code.reverse() }
+      def muestra   = reactor { println it }
+      def main    = actor   {
+        decriptor 'terces pot'
+        react { plainText ->
+          muestra plainText
+        }
+      }
+      main.join()
+      muestra.stop()
+      muestra.join()      
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> Actor pasivo</h4>
+    <pre class="brush: groovy">
+      import static groovyx.gpars.actor.Actors
+
+      def passiveActor = Actors.actor{
+          loop {
+              react { msg -> println "Received: $msg"; }
+          }
+      }
+      passiveActor.send 'Message 1'
+      passiveActor << 'Message 2'
+      passiveActor 'Message 3'
+    </pre>
+  </div>
+</div><p>GPars soporta los estados de los actores, pero esto no es común entre la implementación de varios de ellos. Depende de nosotros decidir cuando usarlo o no usar este tipo de estado.</p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> guess_my_number.groovy</h4>
+    <pre class="brush: groovy">
+      import groovyx.gpars.actor.Actor
+      import groovyx.gpars.actor.DefaultActor
+
+      class GuessMyNumber extends DefaultActor {
+        int numeroSecreto
+
+        void afterStart() {
+          numeroSecreto = new Random().nextInt(50)
+        }
+
+        void act() {
+          loop {
+            react { int num ->
+              if (num > numeroSecreto)
+              reply 'muy alto'
+              else if (num < numeroSecreto)
+              reply 'muy pequeno'
+              else {
+                reply 'ganaste'
+                terminate()
+              }
+            }
+          }
+        }
+      }
+
+      class Jugador extends DefaultActor {
+        String nombre
+        Actor servidor
+        int miIntento
+
+        void act() {
+          loop {
+            miIntento = new Random().nextInt(50)
+            servidor.send miIntento
+            react {
+              switch (it) {
+                case 'muy alto': println "$nombre: $miIntento fue muy alto"; break
+                case 'muy pequeno': println "$nombre: $miIntento fue muy pequeno"; break
+                case 'ganaste': println "$nombre: Gané $miIntento"; terminate(); break
+              }
+            }
+          }
+        }
+      }
+
+      def juego = new GuessMyNumber().start()
+      def jugador = new Jugador(nombre: 'Player', servidor: juego).start()
+
+      // Esto forza al hilo principal a vivir hasta que ambos actores paren
+      [juego, jugador]*.join()      
+    </pre>
+  </div>
+</div><p>Mandando un mensaje a un acter toma la forma de una solicitud asíncrona. el actor es libre de procesar los mensajes en cualquier momento. Esto significa además que no tenemos que esperar por esta respuesta, a menos que usemos <code>sendAndWait()</code>. Cuando un actor responde a un mensaje, manda la respuesta al actor que lo origino.</p><p>Hay muchas aplicaciones concebibles de actores. En resumen podemos listar las capacidades por nombre de método:</p>
+<ul>
+  <li><code>start()</code> Comienza el actor.</li>
+  <li><code>stop()</code> No acepta más mensajes, para cuando termina.</li>
+  <li><code>act()</code> Contiene el código para ejecutar seguramente por mensaje</li>
+  <li><code>send(msg)</code> Pasa un mensaje al actor para procesamiento secuencial asíncrono</li>
+  <li><code>sendAndWait(msg)</code> Pasa un mensaje al actor para procesamiento asíncrono. Espera por la respuesta</li>
+  <li><code>loop{}</code> Hace el trabajo hasta que se pare.</li>
+  <li><code>react{msg-&gt;}</code> Espera por que un mensaje esté disponible en el inbox, saca un mensaje fuera del inbox y lo pasa al closure.</li>
+  <li><code>msg.reply(replyMsg)</code> MAnda la respuesta de regreso al sender.</li>
+  <li><code>receive()</code> Como <code>react</code> pero sin un closure como parámetro para procesar. Regresa el mensaje</li>
+  <li><code>join()</code> Espera a que el actor termine antes de proceder con la tarea actual.</li>
+</ul>
+<div id="4"></div><h2>Concurrencia</h2><p>La combinaremos con el uso de WebServices</p>
+<div id="5"></div><h2>Aplicando los conceptos</h2><p>La recomendación al usar los conceptos de paralelización y concurrencia que están disponibles en GPars son:</p>
+<ol>
+  <li>Tienes una <em>colección</em>, la cual necesita ser iterada o procesada usando uno de los métodos del GDK. Suponiendo que el procesamiento de cada elemento es independiente, entonces el uso de <strong>colecciones paralelas</strong> es recomendado.</li>
+  <li>Tienes <em>cálculos que conllevan mucho tiempo</em>,los cuales son seguros de correr en segundo plano, entonces usa el <strong>soporte de invocaciones asíncronas</strong>.</li>
+  <li>Necesitas <em>paralelizar</em> un algoritmo a mano. Puedes identificar un conjunto de <em>tareas</em> con dependencias mutuas. Las tareas no necesitan compartir datos, pero si necesitan esperar a que otras tareas terminen antes de comenzar. Con las <strong>tareas de Dataflows</strong> se pueden crear tareas internas secuenciales, cada una de ellas corriendo de forma concurrente con otras.</li>
+  <li>No puedes evitar el <em>estado mutable compartido</em> en el algoritmo. Múltiples hilos estarán accediendo a los datos compartidos modificándolos. El bloque tradicional y la aproximación de sincronización son arriesgados o desconocidos. Puedes usar los <strong>agentes</strong> de GPars.</li>
+  <li>Estás construyendo un sistema con demanda altamente concurrente. Ajustando una estructura de datos por aquí o una tarea que no se puede partir. Necesitas construir la arquitectura desde abajo con la concurrencia en men te. El <em>paso de mensajes</em> es un posible camino.
+  <ul>
+    <li>Groovy CSP ofrece el modelo deterministico y compuesto para procesos concurrentes. Esta organizado alrededor de cálculos o procesos, los cuales corren concurrentemente y se comunican con canales síncronos.</li>
+    <li>Si intentas resolver un problema de procesamiento de datos complejos, considera los <strong>operadores de dataflow</strong> para construir una red de datos. El concepto está organizado alrededor de transformaciones manejadas por eventos alambrados con pipelines usando canales asíncronos.</li>
+    <li><strong>Actores</strong> son buenos si necesitas construir una arquitectura de próposito general, altamente concurrrente y escalable siguien el paradigma orientado a objetos.</li>
+  </ul></li>
+</ol>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+  La idea de actores nació de Scala, y Erlang lo ha concebido de una forma elegante desde hace mucho tiempo, aunque no con tal nombre. Te recomendamos: <a href="http://savanne.be/articles/concurrency-in-erlang-scala/">Concurrency in Erlang & Scala: The Actor Model</a>.
+  </p>
+</div>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>

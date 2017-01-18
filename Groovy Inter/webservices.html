@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+      <div class="container">
+        <h1>Productividad con Groovy</h1>
+        <div style="height:70px"> 
+          <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+          <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+          <p id="p3">“Making best code, through better developers”</p>
+        </div>
+      </div>
+   </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>Consumo de web services con Groovy</h1>
+<hr/><p>Aunque muchos servicios web están atados a un estándar, REST es un concepto abierto en lugar de un estándar. El común denominador de los servicios REST es que:</p>
+<ul>
+  <li>Los datos formateados son intercambiados entre el cliente y el server(típicamente usando XML o JSON)</li>
+  <li>La comunicación es hecha sobre un modelo stateless de solicitud/respuesta sobre https usando verbos como GET, POST, etc.</li>
+  <li>Los recursos o servicios son direccionado por una URL</li>
+</ul>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+  Una charla que te podría interesar sería <a href="http://recursivo.org/?p=79">Arquitecturas REST con Grails</a>.
+  </p>
+</div>
+<div id="1"></div><h2>REST con JsonSlurper</h2>
+<div class="row">
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> ApiSystem.groovy</h4>
+    <pre class="brush: groovy">
+      @Singleton
+      class ApiSystem {
+        String untappdApiUrl = "http://api.untappd.com/v4/"
+        String clientId = "5D55C3F3D75BE1C982570A5FA10C32EB5527F5B2"
+        String clientSecret = "2D8F9FA8F68C22512B5AFC4FA6F58810E4C2A550"
+        String permanentParams = "client_id=${clientId}&client_secret=${clientSecret}"
+
+        def getApiUrlRequest(metodo,params=[:]){
+          "${untappdApiUrl}${metodo}?&${permanentParams}&${mapAsUrlParameters(params)}"
+        }
+
+        private String mapAsUrlParameters(Map params){
+          params.collect{ k,v -> "${k}=${v}" }.join('&')
+        }
+      }
+    </pre>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> Cerveceria.groovy</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.Canonical
+      class Cerveceria {
+        Long id
+        Integer numeroDeCervezas
+        String nombre
+        String urlDeImagen
+        String pais
+
+        static createWithParams(params){
+          new Cerveceria(
+            id:params.'brewery_id',
+            numeroDeCervezas:params.'beer_count',
+            nombre:params.'brewery_name',
+            urlDeImagen:params.'brewery_label',
+            pais:params.'country_name'
+          )
+        }
+      }
+    </pre>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> Cerveza.groovy</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.Canonical
+      class Cerveza {
+        Long id
+        String nombre
+        String estilo
+        String urlDeImagen
+
+        static createWithParams(params){
+          new Cerveza(
+            id:params.'bid',
+            nombre:params.'beer_name',
+            estilo:params.'beer_style',
+            urlDeImagen:params.'beer_label'
+          )
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> BuscadorDeCervecerias.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.json.JsonSlurper
+
+      class BuscadorDeCervecerias {
+        static metodoApi = "search/beer"
+
+        static findByPais(String pais){
+          def cerveceras = []
+          def jsonSlurper = new JsonSlurper()
+          def httpConnection = new URL(ApiSystem.instance.getApiUrlRequest(metodoApi,[q:pais]))
+          def queryResult = jsonSlurper.parseText(httpConnection.text)
+          cerveceras = queryResult.response.breweries.items.collect { c -> Cerveceria.createWithParams(c.brewery) }
+          cerveceras
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> REST con JsonSlurper</h4>
+    <pre class="brush: groovy">
+      def cerveceras = BuscadorDeCervecerias.findByPais("Mexico")
+      cerveceras.each{ cervecera ->
+        println "* $cervecera"
+      }
+    </pre>
+  </div>
+</div>
+<div id="2"></div><h2>REST con HttpBuilder</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> BuscadorDeCervezas.groovy</h4>
+    <pre class="brush: groovy">
+      @Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.6') 
+      import groovyx.net.http.RESTClient
+      import static groovyx.net.http.ContentType.URLENC
+
+      class BuscadorDeCervezas {
+
+        static metodoApi = "search/beer"
+
+        static findAllByCervecera(String cervecera) {
+          def cervezas = []
+          def apiSystem = ApiSystem.instance
+          def buscador = new RESTClient(apiSystem.untappdApiUrl)
+          def params = [client_id:apiSystem.clientId,client_secret:apiSystem.clientSecret,q:cervecera]
+          buscador.get(path:"${metodoApi}",query:params){ response, data ->
+            assert response.status == 200
+            cervezas = data.response.beers.items.collect { c -> Cerveza.createWithParams(c.beer) }
+          }
+          cervezas
+        }
+
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> REST con JsonSlurper y HttpBuilder</h4>
+    <pre class="brush: groovy">
+      def cerveceras = BuscadorDeCervecerias.findByPais("Mexico")
+      cerveceras.each{ cervecera ->
+        println "* $cervecera"
+        cervezas = BuscadorDeCervezas.findAllByCervecera(cervecera.nombre)
+        cervezas.each { cerveza ->
+          println "\t - ${cerveza}"
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+  Podrás encontrar más información en el sitio del proyecto de <a href="http://groovy.codehaus.org/modules/http-builder/home.html">HttpBuilder</a>, con ejemplos del manejo del request y del response más detallado.
+  </p>
+</div>
+<div id="3"></div><h2>Consumo de servicios SOAP</h2><p>Hay varios servicios SOAP disponibles en el sitio de <a href="http://www.webservicex.net/ws/default.aspx">WeberviceX.NET</a>, te recomendamos explorar algunos de ellos.</p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> soap_operations.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.xml.Namespace
+
+      def url  = 'http://www.webservicex.net/CurrencyConvertor.asmx?WSDL'
+      def wsdl = new Namespace('http://schemas.xmlsoap.org/wsdl/','wsdl')
+      def doc  = new XmlParser().parse(url)
+      println doc[wsdl.portType][wsdl.operation].'@name'
+    </pre>
+  </div>
+</div><h3>Uso de URL y XmlParser</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> consuming_webservices.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.text.SimpleTemplateEngine as STE
+      import groovy.xml.Namespace
+
+      def file = new File('envelope.xml')
+      def template = new STE().createTemplate(file)
+      def params = [speed:1,fromUnit:"feetPersecond",toUnit:"centimetersPersecond"]
+      def request = template.make(params).toString()URL.getBytes('UTF-8')
+
+      def url = 'http://www.webservicex.net/ConvertSpeed.asmx?WSDL'
+      def conexion = new URL(url).openConnection()
+      def propiedadesDelRequest = [
+        'Content-Type': 'text/xml; charset=UTF-8',                   
+        'SOAPAction'  : 'http://www.webserviceX.NET/ConvertSpeed', 
+        'Accept'      : 'application/soap+xml, text/*'
+      ]
+      propiedadesDelRequest.each { key,value -> conexion.addRequestProperty(key,value) }
+
+      conexion.requestMethod = 'POST'
+      conexion.doOutput = true
+      conexion.outputStream << new ByteArrayInputStream(request)
+
+      if (conexion.responseCode != conexion.HTTP_OK) {
+        println "Error - HTTP:${conexion.responseCode}"
+      }
+
+      def response = new XmlParser().parse(conexion.inputStream)
+      def service = new Namespace('http://www.webserviceX.NET/')
+      def resultado = service.ConvertSpeedResult
+
+      def conversion = response.depthFirst().find{resultado == it.name()}.text()
+
+      println "La conversión de ${params.speed} ${params.fromUnit} a ${params.toUnit} es $conversion"
+    </pre>
+  </div>
+</div><h3>Uso de HttpBuilder</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> consuming_soap_httpbuilder.groovy</h4>
+    <pre class="brush: groovy">
+      @Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.6') 
+
+      import groovyx.net.http.RESTClient
+      import static groovyx.net.http.ContentType.XML
+
+      def base = 'http://www.webservicex.net/ConvertSpeed.asmx'
+      def soapEnv = 'http://www.w3.org/2003/05/soap-envelope'
+      def contentType = 'application/soap+xml; charset=UTF-8'
+      new RESTClient(base).with {
+        parser.'application/soap+xml' = parser.'application/xml'
+        headers = ['Content-Type': contentType]
+        post(requestContentType: XML, body: {
+          'soap:Envelope'('xmlns:soap': soapEnv) {
+            'soap:Body' {
+              ConvertSpeed(xmlns: 'http://www.webserviceX.NET/') {
+                speed(1)
+                FromUnit('feetPersecond')
+                ToUnit('centimetersPersecond')
+              }
+            }
+          }
+        }) { resp, data ->
+          assert resp.status == 200
+          println data.text()
+        } 
+      }
+    </pre>
+  </div>
+</div><h3>Uso de WsLite</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> consuming_soap_wslite.groovy</h4>
+    <pre class="brush: groovy">
+      @Grab('com.github.groovy-wslite:groovy-wslite:0.8.0')
+
+      import wslite.soap.SOAPClient
+
+      def url = 'http://www.webservicex.net/ConvertSpeed.asmx?WSDL'
+      def client = new SOAPClient(url)
+      def action = "http://www.webserviceX.NET/ConvertSpeed"
+      def response = client.send(SOAPAction: action) {
+        body {
+          ConvertSpeed(xmlns: 'http://www.webserviceX.NET/') {
+            speed(1)
+            FromUnit('feetPersecond')
+            ToUnit('centimetersPersecond')
+          }
+        } 
+      } 
+      assert response.httpResponse.statusCode == 200
+      println response.ConvertSpeedResponse.ConvertSpeedResult
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+  En el sitio de <a href="https://github.com/jwagenleitner/groovy-wslite">groovy-wslite</a> encontrarás la documentación completa para servicios web SOAP y REST, incluyendo el uso de SSL, el manejo de faults y la creación de proxy's.
+  </p>
+</div>
+<div id="4"></div><h2>Concurrencia y WebServices</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> cervezas_fork_join.groovy</h4>
+    <pre class="brush: groovy">
+      import static groovyx.gpars.GParsPool.withPool
+
+      def cerveceras = BuscadorDeCervecerias.findByPais("Mexico")
+
+      withPool{
+        cerveceras.eachParallel { cervecera ->
+          println listaDeCervezas(cervecera)    
+        }
+      }
+
+      def listaDeCervezas(cervecera){
+        def result = "* $cervecera\n"
+        cervezas = BuscadorDeCervezas.findAllByCervecera(cervecera.nombre)
+        cervezas.each { cerveza ->
+          result += "\t - ${cerveza}\n"
+        }
+        result
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> cervezas_map_reduce.groovy</h4>
+    <pre class="brush: groovy">
+      import static groovyx.gpars.GParsPool.withPool
+
+      def cerveceras = BuscadorDeCervecerias.findByPais("Mexico")
+
+      withPool{
+        cerveceras.eachParallel { cervecera ->
+          println listaDeCervezas(cervecera)    
+        }
+      }
+
+      def listaDeCervezas(cervecera){
+        def result = "* $cervecera\n"
+        cervezas = BuscadorDeCervezas.findAllByCervecera(cervecera.nombre)
+        cervezas.each { cerveza ->
+          result += "\t - ${cerveza}\n"
+        }
+        result
+      }
+    </pre>
+  </div>
+</div>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>

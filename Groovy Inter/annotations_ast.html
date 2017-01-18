@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+      <div class="container">
+        <h1>Productividad con Groovy</h1>
+        <div style="height:70px"> 
+          <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+          <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+          <p id="p3">“Making best code, through better developers”</p>
+        </div>
+      </div>
+   </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>Uso de anotaciones y AST</h1>
+<hr/><p>Tal vez no hayas escuchado antes el término de <strong>metaprogramación en tiempo de compilación</strong>, el cual, ha entrado recientemente al vocabulario popular de los desarrolladores Groovy y de algunos Java. Sin embargo, Java tiene una larga historia de generación de código: herramientas y frameworks que automatizan la creación de código en saltos que reducen el tiempo de compilación.</p>
+<blockquote>
+  <p>Groovy no genera código fuente, genera código de byte.</p>
+</blockquote><p>Por ejemplo, los métodos <code>get</code> y <code>set</code> de los POGO&rsquo;s no son necesarios en la definición de una clase, estos son generados. Esto ocurre sin un archivo de código fuente por separado; el compilador de Groovy es lo suficientemente robusto para leer el código fuente groovy y crear el bytecode de este, sin intermediarios.</p><p>A partir de Groovy 1.6 se introduce una característica notable: <strong>Las transformaciones AST</strong>. Las Transnformaciones del Árbol de Sintaxis Abstracto, una representación de código como datos. Esta característica permite modificar el código de byte que llega a ser generado sin tener la necesidad de una representación de código fuente. Por ejemplo, puedes agregar métodos y campos a una clase, o agregar código dentro de los cuerpos de los métodos. Aunque ningún código fuente es generado, el bytecode es presente en la clase final en una forma enteramente ordinaria. Esto es importante por que significa que los objetos Java llamando a los objetos Groovy verán el nuevo código, lo cual, no es el caso para los cambios hechos a través de la metaprogramación en tiempo de ejecución.</p><p>Groovy viene con varias transformaciones AST que se pueden usar actualmente para evitar código repetitivo o falto de expresión. Las transformaciones AST cubren un amplio rango de funcionalidad. No necesitas saber nada de compiladores o de la estructura interna de Groovy antes de usarlas, sólo anota una clase o un método y listo.</p><p>Podemos catalogar algunas de las transformaciones AST en:</p>
+<ul>
+  <li>Transformaciones de generación de código</li>
+  <li>Anotaciones de diseño de clases</li>
+  <li>Mejoras de logging</li>
+  <li>Fácil clonación y externalización</li>
+  <li>Scripting seguro</li>
+  <li>Concurrencia declarativa (No vistos)
+  <ul>
+    <li>@Synchronized</li>
+    <li>@WithReadLock</li>
+    <li>@WithWriteLock</li>
+  </ul></li>
+</ul>
+<div id="1"></div><h2> Transformaciones de generación de código</h2>
+<div class="row">
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> code_generation.groovy</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.ToString // Provee un método toString
+      class Curso{
+        String nombre
+        Integer duracion
+        BigDecimal costo
+      }
+
+      println new Curso(nombre:"Groovy&Grails",duracion:40,costo:8000.00)
+    </pre>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> code_generation.groovy</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.EqualsAndHashCode // Provee una implementación por default para equals() y hashCode()
+      class Posicion{
+        Integer x,y
+      }
+
+      def p1 = new Posicion(x:30,y:90)
+      def p2 = new Posicion(x:30,y:90)
+
+      assert p1 == p2
+      assert p1.hashCode() == p2.hashCode()
+    </pre>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> code_generation.groovy</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.TupleConstructor // Provee un constructor con todas las propiedades
+      class Auto{
+        String modelo
+        Integer anio
+        BigDecimal precio
+      }
+
+      def a = new Auto('Dodge Challenger',2012,500000.00)
+
+      println a.dump()
+    </pre>
+  </div>
+</div>
+<blockquote>
+  <p><code>@Canonical == @ToString + @EqualsAndHashCode + @TupleConstructor</code></p>
+</blockquote>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> code_generation.groovy</h4>
+    <pre class="brush: groovy">
+      class Persona {
+        @Lazy // No se crea en este momento
+        def connection = getConnection('jdbc:mysql://localhost/no_existe', 'sa', '')
+      }
+      assert new Persona()
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> code_generation.groovy</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.InheritConstructors
+      class MyPrintWriter extends PrintWriter { }
+      assert new MyPrintWriter(new File('out.txt'))
+    </pre>
+  </div>
+</div>
+<div id="2"></div><h2>Anotaciones de diseño de clases</h2>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> design.groovy</h4>
+    <pre class="brush: groovy">
+      @Singleton // Implementa el modelo de instanciación Singleton
+      class Servicio{}
+
+      assert Servicio.instance
+      try{
+        new Servicio()
+      }catch(RuntimeException e){
+        println e.message
+      }
+
+      def s1 = Servicio.instance
+      def s2 = Servicio.instance
+
+      assert s1 == s2
+      println "S1:$s1 y S2:$s2"
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> design.groovy</h4>
+    <pre class="brush: groovy">
+      class MiPropioSet implements Set {
+        @Delegate
+        Set delegate = new HashSet()
+        @Override
+        boolean add(i) {
+          println "adding $i"
+          delegate.add(i)
+        }
+        @Override
+        boolean addAll(Collection i) {
+          for(def x : i) { println "adding $x" }
+          delegate.addAll(i)
+        }
+      }
+
+      def set = new MiPropioSet()
+      set.add(3)
+      set.addAll([4,5,6,7])
+    </pre>
+  </div>
+</div>
+<div id="3"></div><h2>Mejoras de logging</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> logging.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.util.logging.*
+
+      @Log
+      class Servicio{
+        def metodo(){
+          log.info("Mexican Debugger")
+        }
+      }
+
+      new Servicio().metodo()
+
+      // @groovy.util.logging.Log == static final java.util.logging.Logger = Logger.getLogger(class.name)
+      // @groovy.util.logging.Commons == static final org.apache.commons.logging.Log = LogFactory.getLog(class)
+      // @groovy.util.logging.Log4j == static final org.apache.log4j.Logger = Logger.getLogger(class)
+      // @groovy.util.logging.Slf4j == static final org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(class)
+    </pre>
+  </div>
+</div>
+<div id="4"></div><h2>Clonación y externalización</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> clone.groovy</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.AutoClone
+      class Persona {
+        String nombre, apellidoPaterno, apellidoMaterno
+        List preferencias
+        Date fechaDeNacimiento
+      }
+
+      /*
+      class Persona implements Cloneable {
+         ...
+         public Object clone() throws CloneNotSupportedException {
+           Object result = super.clone()
+           result.preferencias = preferencias.clone()
+           result.fechaDeNacimiento = fechaDeNacimiento.clone()
+           return result
+         }
+         ...
+       }
+      */
+
+      def persona = new Persona(nombre:"Making",apellidoPaterno:"Devs",preferencias:['programar','cerveza'],fechaDeNacimiento: new Date() - (365*30))
+      def persona2 = persona.clone()
+
+      assert persona instanceof Cloneable
+      assert persona.preferencias instanceof Cloneable
+      assert persona.fechaDeNacimiento instanceof Cloneable
+      assert !(persona.nombre instanceof Cloneable)
+
+      assert !persona.is(persona2)
+      assert !persona.preferencias.is(persona2.preferencias)
+      assert !persona.fechaDeNacimiento.is(persona2.fechaDeNacimiento)
+      assert persona.nombre.is(persona2.nombre)
+    </pre>
+  </div>
+</div>
+<div id="5"></div><h2>Scripting seguro</h2>
+<div class="row">
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> safer_scripting1.groovy</h4>
+    <pre class="brush: groovy">
+      @ThreadInterrupt
+      import groovy.transform.ThreadInterrupt
+
+      while(true){
+      }
+
+      /*
+      while (true) {
+        if (Thread.currentThread().isInterrupted()) throw new InterruptedException("Execution Interrupted");
+        // CPU al máximo consumo
+      }
+      */
+    </pre>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> safer_scripting2.groovy</h4>
+    <pre class="brush: groovy">
+      @TimedInterrupt(10)
+      import groovy.transform.TimedInterrupt
+
+      while (true) {
+        // CPU al máximo consumo
+      }
+    </pre>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> safer_scripting3.groovy</h4>
+    <pre class="brush: groovy">
+      @ConditionalInterrupt({ errorCount >= 10})
+      import groovy.transform.ConditionalInterrupt
+
+      errorCount = 0
+
+      1000.times {
+        try {
+          // do some work
+          if(it == 500){
+            Thread.sleep(2000)
+            errorCount = 11
+          }
+        } catch (Throwable t) {
+          errorCount++
+        }
+      }
+    </pre>
+  </div>
+</div>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>

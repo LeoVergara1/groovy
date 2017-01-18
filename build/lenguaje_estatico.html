@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+    <div class="container">
+      <h1>El lenguaje dinámico Groovy</h1>
+      <div style="height:70px"> 
+        <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+        <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+        <p id="p3">“Making best code, through better developers”</p>
+      </div>
+    </div>
+ </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>Groovy como lenguaje estático</h1>
+<hr/><p>Nuestras preferencias por escoger un lenguaje varían en función de muchas características del mismo, si bien Groovy es un lenguaje dinámico, a partir de la versión 2 podemos utilizar elementos que nos ayuden a tipar de forma estática(incluso para el tiempo de compilación) los elementos que estemos desarrollando.</p>
+<div id="1"></div><h2>Tipado estático</h2><p>Ya lo habíamos comentado anteriormente, pero lo reiteramos: <strong>Groovy es un lenguaje dinámico de tipado opcional.</strong></p>
+<ul>
+  <li>El objetivo es hacer el compilador de Groovy gruñon/quejumbroso y arrojar errores de compilación.</li>
+  <li>No todos necesitamos las características dinámicas de Groovy todo el tiempo</li>
+  <li>El compilador debería:
+  <ul>
+    <li>Decirte de los errores de escritura en variables o métodos</li>
+    <li>Quejarse si llamas métodos que no existen</li>
+    <li>Notificarte en asignaciones de tipos incorrectos</li>
+    <li>Inferir los tipos de las variables</li>
+    <li>Descifrar los métodos del GDK</li>
+  </ul></li>
+</ul>
+<div class="row">
+  <div class="col-md-3">
+    <h4><i class="icon-code"></i> Tipos distintos</h4>
+    <pre class="brush: groovy">
+      def c(s){ 
+        println s.toUpperCase() 
+      }
+      c("hola")
+      c('c')
+      c(4)
+    </pre>
+  </div>
+  <div class="col-md-3">
+    <h4><i class="icon-code"></i> Errores de nombres</h4>
+    <pre class="brush: groovy">
+      class Person {
+        String firstName
+        String lastName
+        String getFullName() { "$firstName $lastname" }
+      }
+      def p = new Person()
+    </pre>
+  </div>
+  <div class="col-md-3">
+    <h4><i class="icon-code"></i> Errores de cast</h4>
+    <pre class="brush: groovy">
+      int metodo(){
+        if(true){ 'String' }
+        else { 42 }
+      }
+
+      metodo()
+    </pre>
+  </div>
+  <div class="col-md-3">
+    <h4><i class="icon-code"></i> Chequeo de tipos</h4>
+    <pre class="brush: groovy">
+      def shout(String str) {
+        println "Printing in uppercase" 
+        println str.toUpperCase()
+        println "Printing again in uppercase" 
+        println str.toUppercase()
+      }
+      shout('hello') 
+    </pre>
+  </div>
+</div>
+<div id="2"></div><h2>Chequeo de tipos</h2>
+<div class="row">
+  <div class="col-md-3">
+    <h4><i class="icon-code"></i> Tipos distintos</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.TypeChecked
+      def c(s){ 
+        println s.toUpperCase() 
+      }
+      c("hola")
+      c('c')
+      c(4)
+    </pre>
+  </div>
+  <div class="col-md-3">
+    <h4><i class="icon-code"></i> Errores de nombres</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.TypeChecked
+      class Person {
+        String firstName
+        String lastName
+        String getFullName() { "$firstName $lastname" }
+      }
+      def p = new Person()
+    </pre>
+  </div>
+  <div class="col-md-3">
+    <h4><i class="icon-code"></i> Errores de cast</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.TypeChecked
+      int metodo(){
+        if(true){ 'String' }
+        else { 42 }
+      }
+
+      metodo()
+    </pre>
+  </div>
+  <div class="col-md-3">
+    <h4><i class="icon-code"></i> Chequeo de tipos</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.TypeChecked
+      def shout(String str) {
+        println "Printing in uppercase" 
+        println str.toUpperCase()
+        println "Printing again in uppercase" 
+        println str.toUppercase()
+      }
+      shout('hello') 
+    </pre>
+  </div>
+</div>
+<ul>
+  <li>El chequeo de tipos trabaja en tiempo de compilación
+  <ul>
+    <li>Agregando `@TypeChecked no cambia el comportamiento
+    <ul>
+      <li>No debe confundirse con compilación estática</li>
+    </ul></li>
+  </ul></li>
+  <li>La mayoría de las características dinámicas no pueden ser checadas
+  <ul>
+    <li>Cambios en las meta clases, uso de categorías</li>
+    <li>Atado dinámico de variables</li>
+  </ul></li>
+  <li>La metaprogrmación funciona en tiempo de compilación, siempre y cuando se provea de la información del tipo</li>
+  <li>@TypeChecked puede ser usado a nivel de variable o a nivel de clase</li>
+</ul>
+<div id="3"></div><h2>Inferencia de tipos</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Tipos distintos</h4>
+    <pre class="brush: groovy">
+      class Person {
+        String firstName
+        String lastName
+        String getFullName() { "$firstName $lastName" }
+      }
+
+      String s = new Person()
+
+      Class personClass = 'java.lang.String'
+    </pre>
+  </div>
+  
+</div><p>El motor de inferencia de tipos es un componente capaz de determinar el tipo de las expresiones sin tener que declararla explicitamente. Por ejemplo: <code>String text = &quot;Type is explicit&quot;</code>. El tipo de la variable es explícito, el compilador no tiene que hacer nada para determinarlo, y si un método es llamado en la variable tiene que estar declarado en la clase, pero el compilador no necesita encontrar el tipo.</p><p>En Groovy tenemos la palabra reservada <code>def</code>, para declarar de manera corta un tipo de variable, por ejemplo: <code>def text = &quot;Type is implicit&quot;</code>. Aquí, <code>def</code> es el equivalente a <code>Object</code>, pero Groovy resuelve las llamadas a métodos en tiempo de ejecución, la verdad el compilador no necesita determinar el tipo en tiempo de compilación. Sin embargo, si queremos hacer chequeo de tipos enfrentamos un problema por que el compilador no sabe de que tipo es. Por eso, Groovy tiene que ejecutar la inferencia, la cual es solo determinar el tipo del resultado de todas las expresiones.</p>
+<div class="alert alert-success">
+  <strong><i class="icon-thumbs-up"></i> Te recomendamos!</strong> Que uses el tipado de tus variables en los elementos donde conoces de antemano el tipo.
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Genericos</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.TypeChecked
+      class Genericos{
+        def usaLista() {
+          ArrayList<Integer> list = new ArrayList<Integer>()
+          list.add(1)
+          list.add(2.0)
+          list.add("hello")
+          list
+        }
+      }
+      def g = new Genericos()
+      g.usaLista()
+    </pre>
+  </div>
+  
+</div>
+<div id="4"></div><h2>Compilación estática</h2>
+<ul>
+  <li>Dado que tu código Groovy puede ser checado en sus tipos, entonces, también puede ser compilado &lsquo;estáticamente&rsquo;
+  <ul>
+    <li>Como si generáramos el bytecode con <strong>javac</strong></li>
+  </ul></li>
+  <li>Además se beneficia de las característica de Java 7</li>
+</ul><h3>Ventajas de la compilación estática</h3>
+<ul>
+  <li>Ganas seguridad en los tipos, gracias al chequeo</li>
+  <li>Código más rápido de ejecutarse, cercano al rendimiento de Java</li>
+  <li>Código inmune al mal uso de la metaprogramación que puede interferir</li>
+  <li>El tamaó del bytecode es más pequeño</li>
+</ul><h3>Desventajas de la compilación estática</h3>
+<ul>
+  <li>Pierdes características dinámicas
+  <ul>
+    <li>Cambios en las metaclases, categorías, etc.</li>
+  </ul></li>
+  <li>Ejecución de métodos dinámicos</li>
+</ul>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> NoStaticCompile.groovy</h4>
+    <pre class="brush: groovy">
+      def saluda(){
+        println "hola mundo".capitalize()
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> StaticCompile.groovy</h4>
+    <pre class="brush: groovy">
+      @groovy.transform.CompileStatic
+      def saluda(){
+        println "hola mundo".capitalize()
+      }
+    </pre>
+  </div>
+</div><h3>Explorando el bytecode</h3>
+<pre><code>groovyc *.groovy
+javap -c NoStatiCompile # invokeinterface
+javap -c StatiCompile   # invokestatic
+</code></pre><h3>Performance</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> performance.groovy</h4>
+    <pre class="brush: groovy">
+      @Grab(group='org.gperfutils', module='gbench', version='0.4.2-groovy-2.1') 
+      import groovy.transform.CompileStatic
+
+      def fibonnacciGroovy(n) { n < 1 ? 1 : fibonnacciGroovy(n-1) + fibonnacciGroovy(n-2) }
+
+      int fibonnacciGroovyTipado(int n) { n < 1 ? 1 : fibonnacciGroovyTipado(n-1) + fibonnacciGroovyTipado(n-2) }
+
+      @CompileStatic
+      int fibonnacciGroovyStatic(int n) { n<1 ? 1 : fibonnacciGroovyStatic(n-1)+fibonnacciGroovyStatic(n-2) }
+
+      def r = benchmark {
+        'Fibonnacci con Groovy dinámico' {
+          fibonnacciGroovy(10)
+        }
+        'Fibonnacci con Groovy optimizado' {
+          fibonnacciGroovyTipado(10)
+        }
+        'Fibonnacci con Groovy compilado estaticamente' {
+          fibonnacciGroovyStatic(10)
+        }
+      }
+      r.prettyPrint()
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p><a href="https://code.google.com/p/gbench/">gbench</a> es un módulo de benchmarking para Groovy. Permite comparar el rendimiento de programas hechos con Groovy</p>
+</div>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>

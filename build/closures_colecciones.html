@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+    <div class="container">
+      <h1>El lenguaje dinámico Groovy</h1>
+      <div style="height:70px"> 
+        <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+        <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+        <p id="p3">“Making best code, through better developers”</p>
+      </div>
+    </div>
+ </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>Closures y colecciones</h1>
+<hr/>
+<div id="1"></div><h2>¿Qué es un closure?</h2>
+<blockquote>
+  <p>Es una pieza de código contenida en un objeto. Actúa como un método que puede tomar parámetros, procesarse y regresar un valor</p>
+</blockquote>
+<ul>
+  <li>Son una de las características más usadas dentro de Groovy</li>
+  <li>Pueden pasarse como métodos e invocarles</li>
+  <li>De hecho una de las contribuciones más significativas de Groovy hacia el JDK toma efecto en los closures</li>
+  <li>Proveen del poder de apuntadores a funciones, pero con la elegancia de los objetos y la facilidad del duck typing</li>
+  <li>Son sintácticamente elegantes</li>
+  <li>Proveen una manera fácil y simple para que una función delegue parte de su lógica</li>
+  <li>Son derivados de las expresiones lambda que provienen de la programación funcional, y una expresión lambda específica el parámetro y el mapeo de una función λ =&gt; Habilitan Programación funcional en Groovy</li>
+  <li>Son sólo un objeto de la clase <a href="http://groovy.codehaus.org/api/groovy/lang/Closure.html">groovy.lang.Closure</a></li>
+  <li>Pueden implementar métodos de interfaces como clases internas anónimas</li>
+  <li>Quitan toda la ceremonia y verbosidad en el código para crear componentes reusables</li>
+  <li>Permiten rediseñar y pensar nuevas formas de resolver un problema</li>
+</ul>
+<blockquote>
+  <p>{ [ argumentosDelClosure -> ] sentencias }</p>
+  <small>Definición de un closure</small>
+</blockquote>
+<div id="2"></div><h2>Formas de usar un closure</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> cuadratica.groovy</h4>
+    <pre class="brush: groovy">
+      //El alcance tradicional del closure, usado como función que puede ser llamada desde cualquier parte
+
+      /**
+      * Dada la ecuación ax^2 + bx + c = 0
+      * La determinante ∆ es b^2 - 4ac
+      */
+      def calculoDeDiscriminante(a,b,c){
+        (b*b) - (4*a*c)
+      }
+
+      println "Dado 1x^2 + 16x + 64 => ∆ = ${calculoDeDiscriminante(1,16,64)}"
+
+      def unaSolucion(a,b,c){
+        def d = calculoDeDiscriminante(a,b,c)
+        if(d < 0)
+          throw new RuntimeException('No tiene solución!')
+        ((-1*b) + Math.sqrt(d)) / (2*a)
+      }
+
+      println "Dado 1x^2 + 16x + 64 => x1 = ${unaSolucion(1,16,64)}"
+      //Sencillo no?, hasta aquí la parte del uso de closures es solo como llamadas a funciones
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> cuadrados.groovy</h4>
+    <pre class="brush: groovy">
+      //La manera Groovy me permite hacerlo de forma más elegante
+      //Por ejemplo el cuadrado de los números impares hasta n
+      def cuadrado(n,block){
+        for(int i=1;i<=n;i++){
+          block(i)
+        }
+      }
+
+      //Por defecto cualquier closure recibe un parametro de nombre it
+      cuadrado(20, { if((it%2)==1) println "El cuadrado de $it es ${it*it}" })
+      //Tambien podemos invocar este closure como
+      println "Llamando al closure de otra manera..."
+      cuadrado(20) { if((it%2)==1) println "El cuadrado de $it es ${it*it}" }
+      //Podemos cambiarle el nombre al parametro it
+      println "Llamando al closure de otra manera cambiando el nombre del parametro..."
+      cuadrado(20) { myNumber -> if((myNumber%2)==1) println "El cuadrado de $myNumber es ${myNumber*myNumber}" }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> strategy.groovy</h4>
+    <pre class="brush: groovy">
+      //Ahora enviemos el closure como parte de la evaluación del código
+      //Veamos si una palabra o frase es palindrome
+      def esPalindrome(frase,valida){
+        if(valida(frase)){ // Strategy
+          println "La palabra es palindrome"
+        }else{
+          println "La palabra NO es palindrome"
+        }
+      }
+
+      def validacion =  { it == it.reverse() }
+
+      esPalindrome("hola mundo", validacion)
+      esPalindrome("anitalavalatina", validacion)
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> simulator.groovy</h4>
+    <pre class="brush: groovy">
+      class Calculadora {
+        def operacion
+        Calculadora(_operacion_) { operacion = _operacion_ } 
+        def operar(){
+          println "Ejecutanto operación..."
+          operacion()
+        }
+      }
+
+      def calculadora_1 = new Calculadora({ println "suma" })
+      def operacion_desacoplada = { println "multiplica" }
+      def calculadora_2 = new Calculadora(operacion_desacoplada)
+
+      calculadora_1.operar()
+      calculadora_2.operar()
+    </pre>
+  </div>
+</div>
+<blockquote>
+  <p>Si un atributo de una clase es un closure entonces puede ser usado como un método.</p>
+</blockquote>
+<div id="3"></div><h2>Listas, mapas y rangos</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> listas.groovy</h4>
+    <pre class="brush: groovy">
+      lista = []// Esencia 1 vs Ceremonia 0
+
+      println lista.getClass().getName()
+
+      lista = ["Uno", "Dos", "Tres"] //Inicializando la lista
+
+      println lista
+
+      println "Iterando la lista"
+      lista.each { print "$it " }
+
+      // Operaciones con listas
+      lista += 4  //Agrego un solo elemento
+      lista += ["Cuatro", "Cinco"] //Agrego una lista
+
+      println "Iterando la lista con for"
+      for(item in lista) { print "$item " }
+
+      println "Agregando elemento a la lista con <<"
+      lista << "Seis" // Agregando un elemento
+
+      println lista
+
+      println "Agrego Siete y Ocho"
+      lista << "Siete" << "Ocho"
+      println lista
+
+      println "Remuevo siete y Ocho"
+      lista = lista - ["Siete","Ocho"] //Puedo eliminar una coleccion
+      println lista
+
+      println "Remuevo el Seis"
+      lista = lista - "Seis" //Puedo borrar un elemento solamente
+      println lista
+
+      println "Intento buscar un elemento que no existe"
+      lista = lista - "Mil Ocho Mil" //no pasa nada si intento borrar algo que no existe
+      println lista
+
+      println "Marihuanadas, doblo la lista"
+      lista = lista * 2
+      println lista
+
+      //Puedo obtener una parte de la lista
+      subLista = lista[4..6]
+      println subLista.dump()
+
+      //Podemos usar un metodo de conveniencia para efectuar una operacion sobre
+      //todos los elemento de la lista
+      println lista.collect { "Numero ${it} Entero" }
+
+      //Hay otro metodo de conveniencia que me sirve para buscar un elemento en la lista
+      println lista.find { it == "Dos" }
+      println lista.find { it == "Dos" }.getClass().name
+      println lista.find { it == 4 }
+      println lista.find { it == 4 }.getClass().name
+
+      //Ahora el metodo anterior regresa la primera ocurrencia, que pasa si queremos todas?
+      println lista.findAll { it == "Dos" }
+      println lista.findAll { it == "Dos" }.getClass().name
+      println lista.findAll { it == 4 }
+      println lista.findAll { it == 4 }.getClass().name
+
+      //Ahora juntemos todo los elementos en un solo enunciado
+      println lista.join(',')
+      println lista.join(',').getClass().name
+
+      //probemos ahora a contar las letras de los objetos que sean String de la lista
+      count = 0
+      lista.each {
+        if(it.getClass().name == "java.lang.String"){
+          return count += it.size()
+        }else{
+          return 0
+        }
+      }
+      println "El tamaño total es de : $count"
+      //Hagámoslo más fácil
+      println lista.collect {
+        if(it.getClass().name == "java.lang.String"){
+          it.size()
+        }else{
+          return 0
+        }
+
+      }.sum()
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> mapas.groovy</h4>
+    <pre class="brush: groovy">
+      class Issue {
+        String identifier
+        String descripcion
+        Date fechaDeCreacion
+
+        String toString() {
+          "$identifier - $descripcion - $fechaDeCreacion"
+        }
+      }
+
+      issue1 = new Issue(identifier:"MD-1", descripcion:"Falta información en la tabla de datos", fechaDeCreacion:new Date())
+      issue2 = new Issue(identifier:"MD-2", descripcion:"Error en el estilo de los encabezados CSS")
+      issue3 = new Issue(identifier:"MD-3", descripcion:"Hace falta un botón 'deshacer' en las acciones principales.")
+
+      mapa = ["issue1":issue1, "issue2":issue2, "issue3":issue3]
+      println mapa
+      println mapa.getClass().getName()
+
+      println "Buscando el issue1"
+      println mapa.issue1
+
+      println "Buscando el issue2: $mapa.issue2 "
+      println "Recorriendo el mapa"
+      mapa.each { println "Issue: $it.key / $it.value" }
+
+      println "Recorriendo el mapa con entry"
+
+      mapa.each { issue -> println "Issue: $issue.key / $issue.value" }
+
+      println "Recorriendo el mapa con key y value"
+      mapa.each { issueId, issue ->
+        println "Issue: $issueId / $issue"
+      }
+
+      //Saludemos a todos en una invocacion
+      println mapa.collect { issueId, issue ->
+        "Issue: $issueId / $issue"
+      }
+
+      //busquemos un elemento
+      issue = mapa.find { issueId, issue ->
+        issue.descripcion.contains "CSS"
+      }
+      println issue
+
+      //busquemos un conjunto de elementos
+      resultado = mapa.findAll { issueId, issue ->
+        issue.descripcion =~ /(F|f)alta/
+      }
+      println resultado
+    </pre>
+  </div>
+</div>
+<div class="alert alert-success">
+  <strong><i class="icon-thumbs-up"></i> Muy útil!</strong> Recuerda que los POGO's de Groovy reciben un mapa como constructor para esteblecer sus atributos.
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> rangos.groovy</h4>
+    <pre class="brush: groovy">
+      rango = (0..10)
+
+      println rango
+      println rango.getClass().getName()
+
+      rango2 = ('a'..'z')
+      println rango2
+      println rango2.getClass().getName()
+
+      hoy = new Date()
+      ayer = hoy-1
+      antier = ayer-1
+      maniana = hoy + 1
+      println "Un rango de fechas"
+      dias = (antier..maniana)
+      println dias
+
+      println "Recorriendo el rango con el for"
+      for(dia in dias) {
+        println "\t $dia"
+      }
+      println "Recorriendo el rango con el each"
+      dias.each { dia ->
+        println "\t $dia"
+      }
+    </pre>
+  </div>
+</div><h3>Más métodos de colecciones y el uso de Spread dot(*.)</h3>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Te recomendamos...!</h4>
+  <p>Veas los videos <a href="http://vimeo.com/channels/grailsmx/28973997" class="alert-link">Colecciones en Groovy - Parte 1 de 2</a> y <a href="http://vimeo.com/channels/grailsmx/28974064" class="alert-link">Colecciones en Groovy - Parte 2 de 2</a>.</p>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> spreaddot.groovy</h4>
+    <pre class="brush: groovy">
+      clazzes = [String, List, File]
+      println clazzes.collect{ it.package }.collect{ it.name }
+      println clazzes*.package*.name
+
+      def exploreClazzes1(c1,c2,c3){ println "$c1 $c2 $c3" }
+      def exploreClazzes2(c1,...c2){ println "$c1 $c2" }
+      def exploreClazzes3(Class... c){ println c }
+
+      exploreClazzes1(*clazzes)
+      exploreClazzes2(*clazzes)
+      exploreClazzes3(*clazzes)
+
+      def range = (1..3)
+      assert [0,1,2,3] == [0,*range]
+      def map = [a:1,b:2]
+      assert [a:1, b:2, c:3] == [c:3, *:map]
+
+      println(["hola","making","devs","!!!","yeah"]*.capitalize())
+      println(["1","2","3","4","5"].collect{ it + it }*.toInteger())
+    </pre>
+  </div>
+</div>
+<div id="4"></div><h2>Delegación de closures</h2><p>En un closure existen tres propiedades que determinan cual objeto maneja la llamada a un método desde dentro del closure</p>
+<ul>
+  <li>this : como en Java, se refiere a la instancia que encierra la clase donde un closure está definido</li>
+  <li>owner : el objeto encerrado(this o un closure alrededor)</li>
+  <li>delegate : por defecto es el mismo que owner, pero intercambiable por ejemplo en un Builder o en ExpandoMetaClass</li>
+</ul>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> this, owner, delegate</h4>
+    <pre class="brush: groovy">
+      class Class1 {
+        def closure = {
+          println this.class.name
+          println delegate.class.name
+          def nestedClos = {
+            println owner.class.name
+          }
+          nestedClos()
+        }
+      }
+
+      def clos = new Class1().closure
+      clos.delegate = this
+      clos()
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> delegation_script.groovy</h4>
+    <pre class="brush: groovy">
+      //Definamos un closure que como parametro recibe y ejecuta un closure
+      def examinandoClosure(closure){
+        closure()
+      }
+
+      //Usemos el closure
+      examinandoClosure(){
+        println "En el primer closure..."
+        println "Class: " + getClass().name
+        println "'this' es " + this + ", 'super': " + this.getClass().superclass.name
+        println "'owner' es " + owner + " 'super': " + owner.getClass().superclass.name
+        println "'delegate' es " + delegate + " 'super': " + delegate.getClass().superclass.name
+
+        //Usemos el closure dentro del closure, como si fuera recursivo
+        examinandoClosure(){
+          println "En el closure dentro del primer closure..."
+          println "Class: " + getClass().name
+          println "'this' es " + this + ", 'super': " + this.getClass().superclass.name
+          println "'owner' es " + owner + " 'super': " + owner.getClass().superclass.name
+          println "'delegate' es " + delegate + " 'super': " + delegate.getClass().superclass.name
+        }
+
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> delegation_script.groovy</h4>
+    <pre class="brush: groovy">
+      class MiClosure {
+
+        def examinandoClosure(closure){
+          closure()
+        }
+
+        def explorar(){
+          println "class : " + getClass().name
+          println "this : " + this + ", super:" + this.getClass().superclass.name
+          //println "owner : " + owner + ", super:" + owner.getClass().superclass.name
+          //println "delegate : " + delegate + ", super:" + delegate.getClass().superclass.name
+          examinandoClosure(){
+            println "En el primer closure..."
+            println "class : " + getClass().name
+            println "this : " + this + ", super:" + this.getClass().superclass.name
+            println "owner : " + owner + ", super:" + owner.getClass().superclass.name
+            println "delegate : " + delegate + ", super:" + delegate.getClass().superclass.name
+
+            examinandoClosure(){
+              println "En el closure dentro del primer closure..."
+              println "class : " + getClass().name
+              println "this : " + this + ", super:" + this.getClass().superclass.name
+              println "owner : " + owner + ", super:" + owner.getClass().superclass.name
+              println "delegate : " + delegate + ", super:" + delegate.getClass().superclass.name
+            }
+          }
+        }
+      }
+
+      new MiClosure().explorar()
+    </pre>
+  </div>
+</div><h3>Identity</h3>
+<ul>
+  <li>El método identity() de un objeto en Groovy provee la capacidad de que cualquier método llamado dentro del alcance del objeto sea dirigido directamente al objeto</li>
+  <li>Acepta un closure como parámetro</li>
+  <li>Cualquier método que se llame dentro del closure es automáticamente resuelto por el contexto del objeto</li>
+  <li>Se recomienda usar identity() si necesitamos llamar multiples métodos de un objeto</li>
+</ul>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Uso de Identity</h4>
+    <pre class="brush: groovy">
+      //Definamos una lista
+      lista = [1,2]
+      
+      //Agregamos unos elementos a la manera Groovy
+      lista.add(3)
+      lista.add(4)
+      
+      //Desplegamos algunos atributos de la lista a la manera Groovy
+      println lista.size()
+      println lista.contains(2)
+      
+      //Usemos identity
+      lista.identity {
+        //El contexto del objeto contiene los métodos
+        add(5)
+        add(6)
+        //Resuelve los metodos por si solo si estan dentro del contexto
+        println size()
+        println contains(2)
+      
+        //Vemos que this y owner son el closure contenido
+        println "'this': ${this}"
+        println "'owner': ${owner}"
+        //Delegate es el objeto original, es decir, la lista
+        println "'delegate': ${delegate}"
+      }
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>Como Groovy hereda de <code>java.lang.Object</code> y muchos objetos <code>Collection</code> y <code>Map</code> tienen varios métodos que aceptan un Closure como argumento.</p>
+</div>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>

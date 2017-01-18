@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+    <div class="container">
+      <h1>El lenguaje dinámico Groovy</h1>
+      <div style="height:70px"> 
+        <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+        <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+        <p id="p3">“Making best code, through better developers”</p>
+      </div>
+    </div>
+ </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>Programación con lenguajes dinámicos</h1>
+<hr/>
+<div id="1"></div><h2>¿Por qué los lenguajes dinámicos?</h2><p>Los lenguajes dinámicos, junto con las capacidades de metaprogramación, hacen las cosas simples más simples y las complejas manejables. Tenemos que tratar con la complejidad heredada de nuestra aplicación, pero los lenguajes dinámicos nos permiten enfocar nuestros esfuerzos en lo que de verdad vale la pena.</p><h3>¿Qué son los lenguajes dinámicos?</h3>
+<ul>
+  <li>Son aquellos que tienen la habilidad de extender un programa en tiempo de ejecución, eso incluye cambiar la estructura de objetos, tipos y comportamiento</li>
+  <li>Aquellos que permiten hacer cosas en tiempo de ejecución que los lenguajes estáticos te permiten en tiempo de compilación</li>
+  <li>Pueden ejecutar instrucciones que fueron creadas al vuelo en tiempo de ejecución</li>
+</ul><h3> ¿Por qué usarlos?</h3>
+<ul>
+  <li>Velocidad de las máquinas</li>
+  <li>Disponibilidad</li>
+  <li>Conciencia del unit testing</li>
+  <li>Killer Apps</li>
+</ul>
+<div id="2"></div><h2>¿Qué es Groovy?</h2>
+<blockquote><p>
+“Groovy es como una super-versión de Java. Puede maximizar las capacidades empresariales de Java pero además tiene características de productividad frescas como closures, builders y tipado dinámico…”
+</p></blockquote>
+<ul>
+  <li>Es un lenguaje ágil y dinámico para la Máquina Virtual de Java</li>
+  <li>Construido sobre las fortalezas de Java pero tiene características adicionales de poder inspiradas por lenguajes como <a href="http://www.python.org/">Python</a>, <a href="https://www.ruby-lang.org/es/">Ruby</a> y <a href="http://www.smalltalk.org/main/">Smalltalk</a></li>
+  <li>Hace que las características de programación modernas estén disponibles para los desarrolladores Java con una curva de aprendizaje ca* si de cero</li>
+  <li>Soporta Lenguajes de Dominio Específico(DSL) y otra sintaxis compacta haciendo que el código llegue a ser fácil de leer y de mantener</li>
+  <li>Incrementa la productividad del desarrollador reduciendo el código de ensamblado cuando se desarrolla en Web, GUI, base de datos o aplicaciones de consola</li>
+  <li>Simplifica el testing soportando unit testing y el mocking fuera-de-caja</li>
+  <li>Compila directo a bytecode Java</li>
+</ul>
+<div id="3"></div><h2>¿Por qué Groovy?</h2><p>La plataforma Java es sin duda una de los ecosistemas más poderosos y ampliamente adoptada actualmente. Cuenta con tres piezas importantes:</p>
+<ul>
+  <li>La JVM se ha vuelto cada vez más potente y ha mejorado su rendimiento en los últimos años.</li>
+  <li>El JDK, el conjunto de librerías de terceros y los frameworks nos ayudan eficazmente a aprovechar el poder de la plataforma.</li>
+  <li>El conjunto de las lenguajes en la JVM (siendo Java el primero) que nos ayuda programar en la plataforma.</li>
+</ul><h3>Por cuestiones personales&hellip;</h3>
+<ul>
+  <li>Ya era hora</li>
+  <li>Aburrimiento</li>
+  <li>Complejidad</li>
+  <li>Ceremonia</li>
+  <li>Fuertemente tipado</li>
+</ul><h3>Es atractivo&hellip;</h3>
+<ul>
+  <li>Tiene una curva de aprendizaje muy ligera</li>
+  <li>Sigue la semántica de Java</li>
+  <li>Te transmite el gusto por lo dinámico</li>
+  <li>Extiende el JDK</li>
+</ul><h3>De forma &lsquo;empresarial&rsquo;&hellip;</h3>
+<ul>
+  <li>Java como plataforma
+  <ul>
+    <li>Zillions de librerías</li>
+    <li>Zillions de herramientas</li>
+    <li>Comunidad enorme</li>
+    <li>Escalable</li>
+    <li>La industria ha invertido muchisimo</li>
+  </ul></li>
+  <li>Construido sobre la plataforma Java, en lugar de portar otra plataforma dentro de la JVM, lo que lleva a abstracciones débiles</li>
+  <li>Reuso de conocimiento adquirido</li>
+  <li>Ayuda a que JSE y JEE sea más sencillo</li>
+  <li>Sintaxis 99.9% concebida con Java 5</li>
+  <li>Facilita el uso del JDK</li>
+  <li><span class="label label-success">Spring 4</span> usará <span class="label label-info">Groovy</span> mayormente</li>
+</ul>
+<div class="bs-callout bs-callout-warning">
+<h4><span class="glyphicon glyphicon-warning-sign"></span> Usar Groovy no significa que:</h4>
+“...vamos a reescribir nuestra aplicación entera desde abajo para tomar ventaja de este nuevo lenguaje...”
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><span class="glyphicon glyphicon-thumbs-up"></span> Usar Groovy significa que:</h4>
+“...vamos a usar un lenguaje que se integre fluidamente con nuestro código existente...”
+</div><h2>La breve historia de Groovy</h2><p>Hamlet D&rsquo;Arcy<br/>Canoo Engineering AG<br/><a href="http://www.slideshare.net/HamletDRC/10-years-of-groovy">Presentación en SlideShare</a> Slide 76. </p>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>

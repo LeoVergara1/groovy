@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+    <div class="container">
+      <h1>El lenguaje dinámico Groovy</h1>
+      <div style="height:70px"> 
+        <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+        <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+        <p id="p3">“Making best code, through better developers”</p>
+      </div>
+    </div>
+ </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>Fundamentos y principios de Groovy</h1>
+<hr/>
+<div class="jumbotron hero">
+  <div class="container">
+    <h2>Eres un desarrollador Java...</h2>
+    <h2>Groovy es Java y Java es Groovy...</h2>
+    <h1>Eres un desarrollador Groovy!</h1>
+  </div>
+</div>
+<div id="1"></div><h2>Ejecutando código Groovy</h2><h3>Instalación convencional</h3>
+<ul>
+  <li>Tener el JDK instalado</li>
+  <li>Establecer la variable <a href="http://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/index.html">JAVA_HOME</a> y agregarla al PATH en el subdirectorio /bin</li>
+  <li>Descargamos la distribución de Groovy en <a href="http://groovy.codehaus.org/">http://groovy.codehaus.org/</a></li>
+  <li>Creamos una variable de entorno GROOVY_HOME apuntando al directorio donde se descomprimió la distribución</li>
+  <li>Adicionalmente, incluir en el PATH el directorio /bin de la variable de entorno GROOVY_HOME, es decir: %GROOVY_HOME%/bin</li>
+  <li>Let’s rock the code!!!</li>
+</ul>
+<div class="bs-callout bs-callout-info">
+<h4><span class="glyphicon glyphicon-heart-empty"></span> Acerca de la instalación</h4>
+<ul>
+<li> El binario de la distribución soporta múltiples plataformas </li>
+<li> Algunas distribuciones Linux ya lo contemplan en sus repositorios </li>
+</ul>
+</div><h3>Instalación recomendada para *nix</h3><p><a href="http://gvmtool.net/">GVM</a> es una herramienta para administrar versiones paralelas de múltiples kits de desarrollos sobre la mayoría de sistemas Unix. Provee de una interfaz conveniente en línea de comando para instalar, cambiar, quitar y listar los kits candidatos.</p><p>GVM estuvo inspirado en <a href="https://rvm.io/">RVM</a> usado por la comunidad de Ruby.</p><p>Los kits que están actualmente soportados son:</p>
+<ul>
+  <li>Groovy</li>
+  <li>Grails</li>
+  <li>Griffon</li>
+  <li>Gradle</li>
+  <li>Groovyserv</li>
+  <li>Lazybones</li>
+  <li>vert.x</li>
+</ul><p>Corre sobre las siguientes plataformas:</p>
+<ul>
+  <li>Linux</li>
+  <li>Mac OSX</li>
+  <li>Cygwin</li>
+  <li>Solaris</li>
+  <li>FreeBSD (with bash installed)</li>
+</ul><p>GVM está escrito en <a href="http://www.gnu.org/software/bash/">bash</a> y solamente necesitar tener instalado en el sistema operativo <a href="http://curl.haxx.se/">curl</a> y <a href="http://www.info-zip.org/">unzip</a>. El instalador checa por dichas dependencias antes de completar el proceso de instalación. Después, crea el directorio .gvm/ en el &lsquo;home&rsquo; del usuario, para despúes descargar y configurar los kits que deseas.</p><p>Para instalar GVM y la última versión de Groovy solo tenemos que abrir una terminal de bash y teclear:</p>
+<pre><code>curl -s get.gvmtool.net | bash
+gvm install groovy
+</code></pre><h3>Groovy Shell =&gt; groovysh</h3><p>Sólo abre una consola y escribe &lsquo;groovysh&rsquo;, comienza a codificar:</p>
+<pre><code>❯ groovysh                                                                                                                               
+Groovy Shell (2.1.7, JVM: 1.7.0_06-ea)
+Type &#39;help&#39; or &#39;\h&#39; for help.
+--------------------------------------
+groovy:000&gt; println &quot;Hola MakingDevs!&quot;
+Hola MakingDevs!
+===&gt; null
+groovy:000&gt;
+</code></pre><h3>Ejecución desde línea de comando</h3><p>Crea un archivo de texto con la extensión <em>.groovy</em> y desde línea de comando ejecutalo:</p>
+<pre><code>❯ groovy archivo.groovy
+</code></pre><p>Realmente lo que sucede es que Groovy compila y ejecuta el contenido del archivo pero no nos entrega el bytecode; si deseamos obtenerlo entonces tenemos que decirle que lo genere:</p>
+<pre><code>❯ groovyc archivo.groovy
+</code></pre>
+<div class="alert alert-warning">
+  <strong><i class="icon-info-sign"></i> Bytecode!</strong> ¿Qué podemos hacer con bytecode?
+</div><h3>Uso de la GroovyConsole</h3><p>Para ejecutarlo en la consola escribimos: <em>groovyConsole</em> </p><p><img src="img/groovyConsole.png" alt="alt groovyConsole"/></p>
+<div id="2"></div><h2>De Java a Groovy</h2>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> HolaMundo en Java</h4>
+    <pre class="brush: java">
+      public class HolaMundo {
+        private String nombre;
+        public String getNombre() {
+          return nombre;
+        }
+        public void setNombre(String nombre) {
+          this.nombre = nombre;
+        }
+        public String saluda() {
+          return "Hola " + this.nombre + " !!!";
+        }
+        public static void main(String[] args) {
+          HolaMundo objeto = new HolaMundo();
+          objeto.setNombre("@grailsmx");
+          System.out.println(objeto.saluda());
+        }
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> HolaMundo en Groovy</h4>
+    <pre class="brush: groovy">
+      public class HolaMundo {
+        private String nombre;
+        public String getNombre() {
+          return nombre;
+        }
+        public void setNombre(String nombre) {
+          this.nombre = nombre;
+        }
+        public String saluda() {
+          return "Hola " + this.nombre + " !!!";
+        }
+        public static void main(String[] args) {
+          HolaMundo objeto = new HolaMundo();
+          objeto.setNombre("@grailsmx");
+          System.out.println(objeto.saluda());
+        }
+      }
+    </pre>
+  </div>
+</div><h3>7 pasos =&gt; De Java a Groovy</h3>
+<ul class="nav nav-tabs" id="myTab">
+  <li class="active"><a href="#paso1" data-toggle="tab">Paso 1</a></li>
+  <li><a href="#paso2" data-toggle="tab">Paso 2</a></li>
+  <li><a href="#paso3" data-toggle="tab">Paso 3</a></li>
+  <li><a href="#paso4" data-toggle="tab">Paso 4</a></li>
+  <li><a href="#paso5" data-toggle="tab">Paso 5</a></li>
+  <li><a href="#paso6" data-toggle="tab">Paso 6</a></li>
+  <li><a href="#paso7" data-toggle="tab">Paso 7</a></li>
+</ul>
+<div class="tab-content">
+  <div class="tab-pane active" id="paso1">
+    <p>
+      <h4>Quitamos lo que es 'obvio'</h4>
+      <ul>
+        <li>Toda clase, método, campo en Groovy tiene acceso público a menos que se especifique lo contrario</li>
+        <li>‘;’ es opcional al final de la línea en la mayoría de los casos</li>
+      </ul>
+    </p>
+  </div>
+  <div class="tab-pane" id="paso2">
+    <p>
+      <h4>La ceremonia de Java</h4>
+      <ul>
+        <li>Estático vs. Dinámico == Ceremonia vs. Esencia</li>
+        <li>Según la convención de JavaBean, cada propiedad requiere de un par de métodos (get/set)</li>
+        <li>El método main() siempre requiere de Strings[] como parámetro</li>
+        <li>Imprimir a consola es muy común, acaso existe alguna %&/(&/$·%) manera más corta???</li>
+      </ul>
+    </p>
+  </div>
+  <div class="tab-pane" id="paso3">
+    <p>
+      <h4>Los tipos dinámicos</h4>
+      <ul>
+        <li>La palabra reservada def se usa cuando no  es necesario indicar el tipo específico de una variable, método o campo( es como var de Javascript)</li>
+        <li>Groovy averiguará el tipo correcto en tiempo de ejecución, esto habilita entre otras cosas lo que se conoce como duck typing</li>
+      </ul>
+    </p>
+  </div>
+  <div class="tab-pane" id="paso4">
+    <p>
+      <h4>Interpolación de variables</h4>
+      <ul>
+        <li>Groovy permite la interpolación de variables a través de GStrings (como Perl)</li>
+        <li>Basta con precederla de $ o rodearla de ${} para usarlo</li>
+      </ul>
+    </p>
+  </div>
+  <div class="tab-pane" id="paso5">
+    <p>
+      <h4>Otras palabras reservadas</h4>
+      <ul>
+        <li>La palabra ‘return’ es opcional en muchos casos, el valor de retorno será el valor de la última expresión evaluada en el contexto</li>
+        <li>La palabra def no es necesaria cuando se trata de métodos estáticos</li>
+      </ul>
+    </p>
+  </div>
+  <div class="tab-pane" id="paso6">
+    <p>
+      <h4>Plain Old Groovy Objects(POGO)</h4>
+      <ul>
+        <li>Los POJO’s (o POGO’s en Groovy) tienen un constructor por omisión que acepta un Map, dando la impresión de usar parámetros con nombres</li>
+        <li>Los POGO’s soportan la notación de arreglo (bean[prop]) o la notación de objeto (bean.prop) para acceder a sus propiedades (lectura/escritura)</li>
+      </ul>
+    </p>
+  </div>
+  <div class="tab-pane" id="paso7">
+    <p>
+      <h4>Lenguajes de scripting</h4>
+      <ul>
+        <li>A pesar de Groovy compila a código byte, soporta programas tipo Script, los cuales también se compilan a código byte</li>
+        <li>Todo Script permite definir clases en cualquier parte</li>
+        <li>Todo Script soporta la definición de paquetes (package) puesto que al fin y al cabo son clases Java </li>
+      </ul>
+    </p>
+  </div>
+</div>
+<hr/>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file-alt"></i> HolaMundo en Java</h4>
+    <pre class="brush: java">
+      public class HolaMundo {
+        private String nombre;
+        public String getNombre() {
+          return nombre;
+        }
+        public void setNombre(String nombre) {
+          this.nombre = nombre;
+        }
+        public String saluda() {
+          return "Hola " + this.nombre + " !!!";
+        }
+        public static void main(String[] args) {
+          HolaMundo objeto = new HolaMundo();
+          objeto.setNombre("@grailsmx");
+          System.out.println(objeto.saluda());
+        }
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file-alt"></i> Nuevo HolaMundo en Groovy</h4>
+    <pre class="brush: groovy">
+      class HolaMundo {
+        String nombre
+        def saluda() { "Hola  ${this.nombre} !!!" }
+      }
+
+      def objeto = new HolaMundo(nombre:"@grailsmx")
+      println(objeto.saluda())
+    </pre>
+  </div>
+</div>
+<div class="panel panel-info">
+  <div class="panel-heading">
+  <h3 class="panel-title">Ejecución de Groovy con Java</h3>
+  </div>
+  <div class="panel-body">
+    <h5>Unix - Linux</h5>
+    <pre class="brush: bash">
+      groovyc HolaMundo.groovy
+      java -cp $GROOVY_HOME/embeddable/groovy-all-2.1.7.jar:. HolaMundo
+    </pre>
+    <h5>Windows</h5>
+    <pre class="brush: bash">
+      groovyc HolaMundo.groovy
+      java -cp %GROOVY_HOME%/embeddable/groovy-all-2.1.7.jar;. HolaMundo
+    </pre>
+  </div>
+</div>
+<div id="3"></div><h2>Scripts y clases en Groovy</h2><h3>Declaración de clases</h3>
+<ul>
+  <li>Podemos declarar de la misma forma que una clase Java</li>
+  <li>Hay flexibilidad en el nombre del archivo</li>
+  <li>Podemos declarar más de una clase en un solo script</li>
+</ul>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file-alt"></i> Persona.groovy</h4>
+    <pre class="brush: java">
+      public class Persona {
+
+        private String nombre
+        public Date edad
+        protected Double peso
+
+        public Persona(){}
+
+        public Persona(Date edad){ this.edad = edad; }
+
+        public setNombre(String nombre){ this.nombre = nombre; }
+
+      }      
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file-alt"></i> MultiplesClases.groovy</h4>
+    <pre class="brush: groovy">
+      class Perfil {
+        private String bio
+        private Persona persona
+        private String twitter
+        private String facebook
+      }
+
+      class Pedido {
+        Persona persona
+        Date dateCreated
+        Date lastUpdated
+        String toString() {
+          "$persona - $dateCreated"
+        }
+      }
+    </pre>
+  </div>
+</div><h3>Características de los scripts en Groovy</h3>
+<ul>
+  <li>Son archivos de texto, generalmente con la extensión .groovy</li>
+  <li>La ejecución es directa no necesitamos compilar previamente(Groovy lo hace por nosotros)</li>
+  <li>No necesitamos definir una clase para correrlo</li>
+  <li>Si el script necesita de otras clases, no necesita compilarlas para usarlas</li>
+</ul><h3>Datos importantes de los scripts</h3>
+<ul>
+  <li>Si un archivo .groovy no declara un clase, es transparentemente envuelto en una clase tipo Script
+  <ul>
+    <li>El contenido del script es contenido en el método run() y este a su vez puesto en un main() construido por Groovy</li>
+  </ul></li>
+  <li>Si un archivo Groovy contiene exactamente la declaración de una clase con el mismo nombre del archivo(sin la extensión), se comporta como Java</li>
+  <li>Un archivo Groovy que contenga la declaración de varias clases, no esta forzado a que el nombre del archivo coincida con alguna clase</li>
+  <li>Un archivo Groovy con la mezcla de clases y scripts, conlleva a que el código del script sea la clase principal a ser ejecutada, por lo tanto, no debemos declarar una clase con el mismo nombre del archivo</li>
+</ul>
+<h4><i class="icon-file-alt"></i> Scripting.groovy</h4>
+<pre class="brush: groovy">
+class Perfil {
+  private String bio
+  private Date bornDate
+  private Persona persona
+  private String twitter
+  private String facebook
+
+}
+
+class Pedido {
+  Persona comprador
+  Date dateCreated
+  Date lastUpdated
+
+  String toString() {
+    "$comprador - $dateCreated"
+  }
+}
+
+
+Persona persona = new Persona()
+persona.setNombre("Desarrollador");
+
+println persona
+
+Perfil perfil = new Perfil()
+try{
+  perfil.setBio("My bio")
+}catch(Exception e){
+  println "No se puede establecer la biografia..."
+}
+
+Pedido pedido = new Pedido()
+pedido.setDateCreated(new Date())
+pedido.setComprador(persona)
+println pedido
+</pre>
+<div class="alert alert-info">
+<strong><i class="icon-info-sign"></i> Recuerda!</strong>
+Puedes analizar la clase con <a href="http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javap.html" class="alert-link">javap</a>.
+</div>
+<div id="4"></div><h2>POGO&rsquo;s</h2><p>Los JavaBeans son clases Java comúnes que exponen sus propiedades. Si una clase expone métodos con un esquema de nombrado como <em>getNombre()</em> y <em>setNombre(nombre)</em>, entonces se describe a <em>&lsquo;nombre&rsquo;</em> como una propiedad de la clase. Los métodos &lsquo;get&rsquo; y &lsquo;set&rsquo; son llamados <i>métodos de acceso</i>. Y las propiedades booleanas pueden usar el prefijo &lsquo;is&rsquo;.</p><p>La convención de JavaBeans define un modelo ligero y generico para los componentes de software en Java. El modelo del componente esta construido sobre convenciones de nombrado que permiten a las clases Java exponerese ante otras clases o herramientas.</p><p>Un GroovyBean es un JavaBean definido en Groovy. Pero Groovy facilita el trabajo con ellos de varias formas:</p>
+<ul>
+  <li>Generando los métodos de acceso</li>
+  <li>Permitiendo el acceso simplificado a los JavaBeans</li>
+  <li>Un registro simplificado de manejadores de eventos en conjunto con anotaciones para declarar una propiedad como <strong>bindable</strong>.</li>
+  <li>Un constructor que recibe un mapa con los posibles valores de los atributos del Bean</li>
+</ul>
+<div class="alert alert-warning">
+<strong><i class="icon-warning-sign"></i> Considera esto!</strong>
+Posteriormente estaremos viendo el uso de mapas y es donde todo toma sentido....
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file-alt"></i> MyBean.java</h4>
+    <pre class="brush: java">
+      public class MyBean implements java.io.Serializable {
+        private String myProp;
+        public String getMyprop(){
+          return myprop;
+        }
+        public void setMyprop(String value){
+          myprop = value;
+        } 
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file-alt"></i> MyBean.groovy</h4>
+    <pre class="brush: groovy">
+      class MyBean implements Serializable{
+        String myProp
+      }
+    </pre>
+  </div>
+</div><h3>Consideraciones de los POGO&rsquo;s</h3><p>Las propiedades pueden ser <em>legibles</em> o <em>escribibles</em> dependiendo del getter o setter disponible. Groovy siempre expone un atributo con sus métodos de acceso, pero podemos tener variantes:</p>
+<ul>
+  <li>Si el atributo es señalado como <em>private</em> no se generan getters ni setters.</li>
+  <li>Si la palabra reservada <em>final</em> es usada en la declaración del atributo entonces será de sólo lectura.</li>
+  <li>Siempre se puede usar <em>setProperty</em> y <em>getProperty</em> para acceder a los atributos de un objeto.</li>
+</ul><h3>Trabajando con POGO&rsquo;s</h3><p>Podemos hacer uso de los métodos de acceso existentes en un JavaBean de la manera Groovy, o bien, con Groovy generar los métodos de acceso para que Java los pueda usar como comúnmente lo hace.</p>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file-alt"></i> </h4>
+    <pre class="brush: java">
+      object.getPropertyname()
+
+
+      object.setPropertyName(value)
+
+
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file-alt"></i> </h4>
+    <pre class="brush: groovy">
+      object.getPropertyname()
+      object.propertyName
+
+      object.setPropertyName(value)
+      object.propertyName = value
+      object['propertyName'] =  value
+    </pre>
+  </div>
+</div><p>Además, podemos hacer nuestras propias implementaciones de los métodos de acceso y conservar los creados por Groovy; con ayuda del operador &lsquo;@&rsquo; durante la invocación del método.</p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file-alt"></i> MethodAccesors.groovy</h4>
+    <pre class="brush: java">
+      class DoublerBean{
+        public value
+
+        void setValue(value){
+          this.value = value
+        }
+
+        def getValue(){
+          value * 2
+        }
+      }
+
+      def bean = new DoublerBean(value:100)
+
+      assert 200 == bean.value
+      assert 100 == bean.@value
+    </pre>
+  </div>
+</div><h3>Notas adicionales</h3><p><a href="http://docs.codehaus.org/display/GROOVY/Differences+from+Java">Differences from Java</a></p>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Programación dinámica - Gaiden</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/highlight.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/my.css">
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="header">
+        <i class="fa fa-bars sidebar-toggle"></i>
+        <span class="title"><a href="#">Gaiden</a></span>
+      </div>
+      <div class="sidebar">
+        <ul>
+          <li class="directory">
+            pages
+            <ul>
+              <li class="visible"><a href="agradecimiento.html">agradecimiento</a></li>
+              <li class="visible"><a href="annotations_ast.html">annotations_ast</a></li>
+              <li class="visible"><a href="dynamic_programming.html">dynamic_programming</a></li>
+              <li class="visible"><a href="gdk.html">gdk</a></li>
+              <li class="visible"><a href="parallelization.html">parallelization</a></li>
+              <li class="visible"><a href="presentacion.html">presentacion</a></li>
+              <li class="visible"><a href="testing.html">testing</a></li>
+              <li class="visible"><a href="web.html">web</a></li>
+              <li class="visible"><a href="webservices.html">webservices</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="content">
+        <div class="content-handle"></div>
+        <div class="content-container">
+          <div class="content-nav content-nav-top">
+          </div>
+          <div class="page-toc">
+            <ul>
+              <li class="unnumbered visible">
+                <a href="#programacin-dinmica">Programación dinámica</a>
+                <ul>
+                  <li class="unnumbered visible"><a href="#mop">MOP</a></li>
+                  <li class="unnumbered visible"><a href="#groovy-object">Groovy Object</a></li>
+                  <li class="unnumbered visible"><a href="#interceptando-mtodos">Interceptando métodos</a></li>
+                  <li class="unnumbered visible"><a href="#inyeccin-de-mtodos">Inyección de métodos</a></li>
+                  <li class="unnumbered visible"><a href="#sntesis-de-mtodos">Síntesis de métodos</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="main-content">
+            <h1 id="programacin-dinmica">Programación dinámica</h1>
+            <hr/>
+            <div id="1"></div>
+            <h2 id="mop">MOP</h2>
+            <blockquote>
+              <p>“La metaprogramación interpreta la semántica de un programa abierto y extensible. Determina que significa un programa y que comportamiento tiene, así también, maneja objetos que manipulan, crean, describen o implementan otros objetos”
+              </p>
+            </blockquote>
+            <p>Metaprogramación significa escribir programas que manipulan programas, incluso ellos mismos. Los lenguajes dinámicos como Groovy proveen esta capacidad a través del Metaobject Protocol(MOP). Podemos usar el MOP para invocar métodos dinámicamente y sintetizar clases y métodos en el vuelo. Esto puede darnos la sensación de que nuestro objeto cambia favorablemente la clase.</p>
+            <div class="bs-callout bs-callout-info">
+              <h4><i class="icon-coffee"></i> Información de utilidad</h4>
+              <p>
+                La Metaprogramación no es nueva, y el MOP esta basado en el <a href="http://mop.lisp.se/">CLOS(Common Lisp Object System)</a>.
+              </p>
+            </div>
+            <div id="2"></div>
+            <h2 id="groovy-object">Groovy Object</h2>
+            <p>Los objetos Groovy son objetos Java con capacidades adicionales. Los objetos Groovy tienen un gran número de comportamientos dinámicos de lo que hacen los objetos Java compilados. Además, Groovy maneja las llamadas de objetos Java diferente a los objetos Groovy.</p>
+            <p>En Groovy se trabaja con 3 tipos de objetos:</p>
+            <ul>
+              <li>
+                POJOs
+                <ul>
+                  <li>Objetos Java tradicionales o de otros lenguajes de la JVM</li>
+                </ul>
+              </li>
+              <li>
+                POGOs
+                <ul>
+                  <li>Programados en Groovy, implementan GroovyObject</li>
+                </ul>
+              </li>
+              <li>
+                Groovy Interceptors
+                <ul>
+                  <li>Objetos Groovy que implementan GroovyInterceptable</li>
+                </ul>
+              </li>
+            </ul>
+            <p>La interface <code>GroovyInterceptable</code> es un componente de marcado que hereda de <code>GroovyObject</code>, y todas las llamadas a los métodos de un objeto(existentes y no existentes) que implementan esta interface son interceptados por <code>invokeMethod()</code>.</p>
+            <div class="row">
+              <div class="col-md-6">
+                <h4><i class="icon-code"></i> GroovyObject</h4>
+                <pre class="brush: groovy">
+      package groovy.lang;
+
+      public interface GroovyObject {
+        Object invokeMethod(String name, Object args);
+        Object getProperty(String propertyName);
+        void setProperty(String propertyName, Object newValue);
+        MetaClass getMetaClass();
+        void setMetaClass(MetaClass metaClass);
+      }
+    </pre>
+              </div>
+              <div class="col-md-6">
+                <h4><i class="icon-code"></i> GroovyInterceptable</h4>
+                <pre class="brush: groovy">
+      package groovy.lang;
+
+      public interface GroovyInterceptable extends GroovyObject {
+
+      }
+    </pre>
+              </div>
+            </div>
+            <div id="3"></div>
+            <h2 id="interceptando-mtodos">Interceptando métodos</h2>
+            <p>Supongase que queremos correr alguno filtros(validación, login, verificación, logs) antes de correr los métodos de una clase y no queremos editar manualmente cada método para llamar a los filtros, por que dicho esfuerzo es redundante, tedioso y propenso a errores. No queremos preguntar a los invocadores de nuestros métodos que llamen a los filtros, incluso, no hay garantía de que lo hagan. Interceptandfo las llamadas que aplican los filtros es una buena opción.</p>
+            <blockquote>
+              <p>
+                Si un objeto Groovy implementa <code>GroovyInterceptable</code>, entonces <code>invokeMethod()</code> es ejecutado para todas las llamadas de métodos. Para otros objetos Groovy, es invocado solamente para métodos que no existen al momento de la llamada. La excepción a esto es si implementamos <code>invokeMethod()</code> sobre el <code>MetaClass</code> de un objeto, en dicho caso es llamado siempre para ambos tipos de métodos(existentes y no existentes).
+              </p>
+            </blockquote>
+            <div class="row">
+              <div class="col-md-6">
+                <h4><i class="icon-file"></i> intercept_interface.groovy</h4>
+                <pre class="brush: groovy">
+      // Definamos una clase que implemente GroovyInterceptable
+      class ClaseSegura implements GroovyInterceptable{
+        //Ahora firmemos la ejecución de algunos métodos
+        //Este método validará la seguridad cuando sea necesario
+        def validar() { System.out.println "Validando la entrada..." }
+        //Este es un método seguro
+        def metodoSeguro() { System.out.println "Ejecutando método seguro!!!" }
+        //Este método lo puede ejecuitar cualquiera
+        def metodoAbierto(){ System.out.println "Ejecutando método abierto!!!" }
+
+        //Tenemos que implementar este metodo de la interfaz
+        def invokeMethod(String nombre, args){
+          //Mandamos a desplegar algunos parametros de la llamada al metodo
+          System.out.println "Ejecutando el metodo '$nombre' con argumentos '$args'"
+          //Si el nombre del metodo contiene la palabra 'Seguro' entonces...
+          if(nombre =~ /Seguro/){
+            //Verificamos la seguridad
+            System.out.println("Hay que verificar la seguridad...")
+            //Llamamos al metodo de la clase que lo hace
+            ClaseSegura.metaClass.getMetaMethod('validar').invoke(this,null)
+          }
+          //Obtenemos el metodo a ejecutar de la clase
+          def metodoValido = ClaseSegura.metaClass.getMetaMethod(nombre,args)
+          //Si encontro el metodo a ejecutar...
+          if(metodoValido != null){
+            //Lo invocamos desde el metodo que encontro
+            metodoValido.invoke(this, args)
+          }else{
+            //Si no lo encuentra simplemente llamamos al método convencionalmente
+            ClaseSegura.metaClass.invokeMethod(this, nombre, args)
+          }
+        }
+      }
+
+      //Probemos nuestro objeto interceptado
+      objetoSeguro = new ClaseSegura()
+      //¿Es interceptado?¿Es validado por el metodo de Seguridad?
+      //R:
+      objetoSeguro.metodoSeguro()
+      //¿Es interceptado?¿Es validado por el metodo de Seguridad?
+      //R:
+      objetoSeguro.metodoAbierto()
+      //¿Es interceptado?¿Es validado por el metodo de Seguridad?
+      //R:
+      try{
+        objetoSeguro.doMetodo()
+      }catch(Exception e){
+        println e.message
+      }
+    </pre>
+              </div>
+              <div class="col-md-6">
+                <h4><i class="icon-file"></i> intercept_metaclass.groovy</h4>
+                <pre class="brush: groovy">
+      // Definamos una clase que implemente GroovyInterceptable
+      class ClaseSegura implements GroovyInterceptable{
+        //Ahora firmemos la ejecución de algunos métodos
+        //Este método validará la seguridad cuando sea necesario
+        def validar() { System.out.println "Validando la entrada..." }
+        //Este es un método seguro
+        def metodoSeguro() { System.out.println "Ejecutando método seguro!!!" }
+        //Este método lo puede ejecuitar cualquiera
+        def metodoAbierto(){ System.out.println "Ejecutando método abierto!!!" }
+      }
+
+      ClaseSegura.metaClass.invokeMethod = { String nombre, args ->
+        //Mandamos a desplegar algunos parametros de la llamada al metodo
+        System.out.println "Ejecutando el metodo '$nombre' con argumentos '$args'"
+        //Si el nombre del metodo contiene la palabra 'Seguro' entonces...
+        if(nombre =~ /Seguro/){
+          //Verificamos la seguridad
+          System.out.println("Hay que verificar la seguridad...")
+          //Llamamos al metodo de la clase que lo hace
+          //***************************NOTA: a quien le cedemos la ejecucion?
+          ClaseSegura.metaClass.getMetaMethod('validar').invoke(delegate,null)
+        }
+        //Obtenemos el metodo a ejecutar de la clase
+        def metodoValido = ClaseSegura.metaClass.getMetaMethod(nombre,args)
+        //Si encontro el metodo a ejecutar...
+        if(metodoValido != null){
+          //Lo invocamos desde el metodo que encontro
+          //******NOTA: a quien le cedemos la ejecucion?
+          metodoValido.invoke(delegate, args)
+          }else{
+            //Si no lo encuentra simplemente llamamos al método convencionalmente
+            //***************************NOTA: a quien le cedemos la ejecucion?
+            //***************************¿Qué metodo usamos para hacerlo?
+            return ClaseSegura.metaClass.invokeMissingMethod(delegate, nombre, args)
+          }
+        }
+
+      //Probemos nuestro objeto interceptado
+      objetoSeguro = new ClaseSegura()
+      //¿Es interceptado?¿Es validado por el metodo de Seguridad?
+      //R:
+      objetoSeguro.metodoSeguro()
+      //¿Es interceptado?¿Es validado por el metodo de Seguridad?
+      //R:
+      objetoSeguro.metodoAbierto()
+      //¿Es interceptado?¿Es validado por el metodo de Seguridad?
+      //R:
+      try{
+        objetoSeguro.doMetodo()
+      }catch(Exception e){
+        println e.message
+      }
+    </pre>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <h4><i class="icon-file"></i> intercepting_float.groovy</h4>
+                <pre class="brush: groovy">
+      //Ahora usemos un interceptor en una clase que no se de nosotros
+      Float.metaClass.invokeMethod = { String nombre, args ->
+        //Al igual desplegamos algo de informacion
+        System.out.println "Ejecutando el metodo '$nombre' con argumentos '$args'"
+        //Obtenemos el metodo del metaClass
+        def metodoValido = Float.metaClass.getMetaMethod(nombre,args)
+        //Si no existe dicho metodo
+        if(metodoValido == null){
+          //Entonces regresamos la ejecucion convencional
+          return Float.metaClass.invokeMissingMethod(delegate,nombre,args)
+        }
+        //Creamos un prefiltro
+        System.out.println("Before...")
+        //Invocamos al metodo original con sus parametros
+        resultado = metodoValido.invoke(delegate,args)
+        //Creamos uns postfiltro
+        System.out.println("After...")
+        //Regresamos la ejecucion del metodo
+        resultado
+      }
+
+      //Usemos los metodos de la clase que no es propietaria
+      println 10F.intValue()
+      println 100F.toString()
+      try{
+        50F.empty()
+      }catch(Exception e){
+        println e.message
+      }
+    </pre>
+              </div>
+            </div>
+            <div id="4"></div>
+            <h2 id="inyeccin-de-mtodos">Inyección de métodos</h2>
+            <p>En Groovy podemos abrir una clase en cualquier momento. Podemos agregar métodos a las clases de forma dinámica, permitiendo cambiar el comportamiento en tiempo de ejecución, en lugar de trabajar con una estructura estática y un conjunto predefinido de métodos. Podemos agregar un método basado en cierta entrada que recibamos por ejemplo.</p>
+            <p>Usando el MOP de Groovy podemos inyectar comportamiento por:</p>
+            <ul>
+              <li>Categorías</li>
+              <li>ExpandoMetaClass</li>
+              <li>Mixins</li>
+            </ul>
+            <div class="row">
+              <div class="col-md-12">
+                <h4><i class="icon-file"></i> categories_ast.groovy</h4>
+                <pre class="brush: groovy">
+      @Category(String)
+      class FormatUtil{
+        def static toFormat(numero){
+          if(numero.size()==10){
+            return "${numero[0..2]}-${numero[3..5]}-${numero[6..9]}"
+          }
+        }
+      }
+
+      use(FormatUtil){
+        println "5518503078".toFormat()
+        println new StringBuffer("5512345678").toFormat()
+      }
+    </pre>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <h4><i class="icon-file"></i> expando_metaclass.groovy</h4>
+                <pre class="brush: groovy">
+      //Usamos el metaClass para agregar un metodo
+      Integer.metaClass.diasDesdeHoy = {->
+        //Definimos una instancia de Calendar
+        Calendar hoy = Calendar.instance
+        //Le sumamos el valor de delegate que es el objeto original
+        hoy.add(Calendar.DAY_OF_MONTH,delegate)
+        //Regresamos el resultaod
+        hoy.time
+      }
+
+      //Invocamos a nuestro objeto
+      println 5.diasDesdeHoy()
+
+      //Quitarle el parentesis
+      //Usarlo en Integer y en Long
+
+      //Podemos inyectar métodos estaticos
+      Integer.metaClass.static.esPar = { val -> val % 2 == 0 }
+      //Probemos nuestro método estatico
+      println "2 es Par? " + Integer.esPar(2)
+      println "3 es Par? " + Integer.esPar(3)
+
+      //Agreguemos la definicion de un constructor
+      Integer.metaClass.constructor << { Calendar calendar ->
+        //Obtenemos un entero del dia en el que estamos
+        new Integer(calendar.get(Calendar.DAY_OF_YEAR))
+      }
+      //Llamamos a nuestro nuevo constructor
+      println new Integer(Calendar.instance)
+
+      //Podemos 'sobreescribir' los constructores actuales
+      Integer.metaClass.constructor = { int val ->
+        println "*** Interceptando la llamada del constructor ***"
+        constructor = Integer.class.getConstructor(Integer.TYPE)
+        constructor.newInstance(val)
+      }
+      //Probemos nuestro constructor 'sobreescrito'
+      println new Integer(4)
+      println new Integer(Calendar.instance)
+      // Se puede agregar métodos por instancia inclusive
+    </pre>
+              </div>
+            </div>
+            <blockquote>
+              <p>La llamada a un método significa la llamada al MetaClass.</p>
+            </blockquote>
+            <p><strong>Ya que la herencia es &lsquo;evil&rsquo;</strong>, tenemos una opción más: el uso de <code>@Mixin</code>. Su uso es intrusivo por el uso de la anotación en donde queremos agregar el comportamiento, sin embargo, también podemos hacer uso del método <code>mixin</code> para agregar el nuevo comportamiento. Los mixins son a menudo comparados con herencia múltiple pero son diferentes en su naturaleza. No hay subtipos y la comprobación con <code>instanceof</code> fallará. No hay una relación y no hay polimorfismo. A diferencia de muchos modelos de herencia múñtiple, el mezclado de nuevas características siempre pasa en una secuencia trazable y en caso de conflictos la última adición se aplica. </p>
+            <p>Las caracterísitcas más importantes de los Mixins en Groovy son:</p>
+            <ul>
+              <li>Puedes instanciar objetos de una mezcla de muchas clases. El estado de los objetos y el comportamiento abarca todas las propiedades y métodos de todas las clases mezcladas.</li>
+              <li>Hay un uso intrusivo de la anotación de clase <code>@Mixin</code> y un uso no intrusivo con el método <code>mixin</code>. Ambas alternativas pasan en tiempo de ejecución.</li>
+              <li>Los mixins son visibles en todos los hilos.</li>
+              <li>No hay restricciones en los métodos a mezclar. Accesores a propiedades, métodos operadores, métodos de <code>GroovyObject</code>, e incluso el MOP trabajan bien.</li>
+              <li>Se pueden mezclar dentro de superclases e interfaces.</li>
+              <li>Un mixin puede sobreescribir un método o un Mixin previo, pero no los métodos en la meta clase.</li>
+              <li>No hay mixin por instancia. Solo se pueden mezclar entre clases y meta clases.</li>
+              <li>Los mixins no se pueden deshacer fácilmente.</li>
+            </ul>
+            <div class="row">
+              <div class="col-md-12">
+                <h4><i class="icon-file"></i> mixins.groovy</h4>
+                <pre class="brush: groovy">
+    class Pago{
+      def pagar(){
+        "Realizando pago de $cantidad por ${medio ?: 'Medio no definido'} "
+      }
+    }
+
+    @Mixin(Pago)
+    class PagoBancario{
+      BigDecimal cantidad
+      String medio
+    }
+
+    pagoBancario = new PagoBancario(cantidad:300,medio:'Banco Tote')
+    println pagoBancario.pagar()
+
+    class PagoElectronico{
+      BigDecimal cantidad
+      String medio
+    }
+
+    PagoElectronico.mixin Pago
+    pagoElectronico = new PagoElectronico(cantidad:500,medio:'PayU')
+    println pagoElectronico.pagar()
+    </pre>
+              </div>
+            </div>
+            <div id="5"></div>
+            <h2 id="sntesis-de-mtodos">Síntesis de métodos</h2>
+            <p>La síntesis de métodos se referirá al caso en el cuál queremos dinámicamente adivinar el comportamiento de los métodos invocados. Para ello tenemos <code>invokeMethod()</code>, <code>methodMissing()</code> y <code>GroovyInterceptable</code>. Por ejemplo el GORM de Grails es un excelente caso de síntesis de métodos.</p>
+            <p>Un método sintetizado quizá no exista como un método por separado hasta que lo llamemos. Cuando llamamos a un método no existente Groovy puede interceptar la llamada, y permitirnos implementarla en el vuelo, nos dejará hacer permanente la invocación para futuras llamadas.</p>
+            <blockquote>
+              <p>"Intercept, Cache, Invoke"</p>
+              <small>Graeme Rocher</small>
+            </blockquote>
+            <div class="row">
+              <div class="col-md-12">
+                <h4><i class="icon-file"></i> sintesis_methodMissing.groovy</h4>
+                <pre class="brush: groovy">
+      //Definimos una clase
+      class Persona{
+        //Un par de atributos
+        String nombre
+        //El atributo a trabajar en cuestion
+        Map relaciones = [:]
+
+        //Implementamos nuestro methodMissing
+        //relacion es el nombre del metodo
+        //personas son los argumentos que vienen con la llamada
+        def methodMissing(String relacion, personas){
+          //Si ya tenemos esa relacion
+          if(relaciones.containsKey(relacion)){
+            //Iteramos los argumentos
+            personas.each{ persona ->
+              //Agregamos el elemento a la lista
+              relaciones.get(relacion).add(persona)
+            }
+          //Si no existe dicho elemento
+          }else{
+            //Lo creamos con una nueva Llave
+            relaciones.put(relacion,personas as List)
+          }
+        }
+      }
+
+      //Usemos nuestro metodo
+      def juan = new Persona(nombre:'Juan')
+      juan.trabajaEn("MakingDevs")
+      juan.trabajaCon("Felipe","Sergio")
+      juan.esAmigoDe("Misael")
+      juan.trabajaCon("Jorge")
+      juan.esAmigoDe("George")
+      juan.conoceA("Epifania","Perla","Cassandra","Alejandra")
+
+      println juan.relaciones
+    </pre>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <h4><i class="icon-file"></i> sintesis_metaClass.groovy</h4>
+                <pre class="brush: groovy">
+      //Creamos una clase con un solo metodo
+      class Persona
+      {
+        def trabajar() { "trabajando..." }
+      }
+
+      //Sintetizamos los metodos con metaClass en methodMissing
+      Persona.metaClass.methodMissing = { String nombre, args ->
+        //Definimos una lista que permitira definir los metodos
+        def deportes = ['Tennis', 'Volibol', 'Basquet']
+
+        System.out.println "methodMissing llamado para '$nombre' con argumentos '$args'"
+        //Buscamos si tenemos el deporte en la lista
+        def metodoEnLista = deportes.find { it == nombre.split('juega')[1]}
+        //Si lo tenemos
+        if (metodoEnLista){
+          //Creamos una implementacion para el cache
+          def impl = { Object[] vargs ->
+            return "jugando ${nombre.split('juega')[1]}..."
+          }
+          //Se lo agregamos a la clase principal
+          //Futuras invocaciones llamaran a este metodo
+          //Persona.metaClass."$nombre" = impl
+          //Regeramos la invocacion del closure
+          return impl(args)
+        }
+        //Si no esta el metodo en la Lista
+        else{
+          //Arrojamos la excepcion donde no lo encontramos...
+          throw new MissingMethodException(nombre, Persona.class, args)
+        }
+      }
+      //Usemos nuestra sintesis de metodos
+      juan = new Persona()
+      println juan.trabajar()
+      println juan.juegaTennis()
+      println juan.juegaTennis()
+
+      try{
+        juan.juegaPolitica()
+      }
+      catch(ex){
+        println ex.message
+      }
+      //Es importante saber que tambien podemos interceptar metodos, asi como, sintetizarlos...
+    </pre>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <h4><i class="icon-file"></i> usando_emc.groovy</h4>
+                <pre class="brush: groovy">
+      //Hacemos uso de la clase Expando para crear clases al vuelo
+      autoA = new Expando()
+      //Podemos agregarle valores a su constructor
+      autoB = new Expando(anio: 2007, kilometros: 0)
+
+      //O bien si los accedemos por primera vez, esos atributos se crean al vuelo
+      autoA.anio = 2007
+      autoA.kilometros = 10
+
+      println "autoA: " + autoA
+      println "autoB: " + autoB
+      //Inclusive en su constructor le podemos mandar un closure como metodo
+      auto = new Expando(anio: 2007, kilometros: 0, volantear: { println 'volanteando...' })
+      //O bien en la asignacion directa de un closure declaramos el metodo
+      auto.manejar = {
+        kilometros += 10
+        println "$kilometros kilometros manejados"
+      }
+      //Los usamos como metodos
+      auto.manejar()
+      auto.volantear()
+    </pre>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <h4><i class="icon-code"></i> Usando metaclass</h4>
+                <pre class="brush: groovy">
+      Number.metaClass {
+       getMm = { delegate          }
+       getCm = { delegate *  10.mm }
+       getM  = { delegate * 100.cm }
+      }
+      assert 1.m + 20.cm - 8.mm == 1.192.m
+    </pre>
+              </div>
+              <div class="col-md-6">
+                <h4><i class="icon-code"></i> Usando metaclass</h4>
+                <pre class="brush: groovy">
+      class MiniGorm {
+        def db = []
+        def methodMissing(String name, Object args) {
+          db.find { it[name.toLowerCase()-'findby'] == args[0] } 
+        }
+      }
+      def people = new MiniGorm()
+      def dierk  = [first: 'Juan', last:'Zuniga']
+      def paul   = [first: 'Eli',  last:'Bernal']
+      people.db << dierk << paul
+      assert people.findByFirst('Juan') == dierk
+      assert people.findByLast('Bernal')   == paul
+    </pre>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <h4><i class="icon-file"></i> property_missing.groovy</h4>
+                <pre class="brush: groovy">
+      class ClaseDinamica {
+        def properties = Collections.synchronizedMap([:])
+        String atributoString
+        Double atributoDouble
+      
+        def propertyMissing(String name, value)  { properties[name] = value }
+        def propertyMissing(String name) { properties[name] }
+      }
+
+      def objeto = new ClaseDinamica()
+       
+      objeto.atributoString = "12345678"
+      objeto.atributoDouble = 12000.00
+       
+      objeto.atributoString
+      objeto.atributoDouble
+       
+      objeto.nuevaPropiedad = true
+      println objeto.nuevaPropiedad
+    </pre>
+              </div>
+            </div>
+            <blockquote>
+              <p>EL MetaClass lo sabe todo...</p>
+            </blockquote>
+            <div class="bs-callout bs-callout-info">
+              <h4><i class="icon-coffee"></i> Información de utilidad</h4>
+              <p>
+                Te recomendamos un par de lecturas: 
+              <ul>
+                <li><a href="http://www.ibm.com/developerworks/java/library/j-pg09205/">Practically Groovy: Of MOPs and mini-languages</a></li>
+                <li><a href="http://www.objectpartners.com/2013/07/30/customizing-mop-in-groovy/">Customizing MOP in Groovy</a></li>
+              </ul>
+              </p>
+            </div>
+          </div>
+          <div class="content-nav content-nav-bottom">
+          </div>
+          <div class="footer">
+            <p class="credit text-muted">Powered by <a href="https://github.com/kobo/gaiden">Gaiden</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="../js/jquery-2.1.1.min.js"></script>
+    <script src="../js/highlight.js"></script>
+    <script src="../js/application.js"></script>
+    <script src="../js/my.js"></script>
+  </body>
+</html>

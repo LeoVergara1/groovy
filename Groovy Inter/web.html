@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+      <div class="container">
+        <h1>Productividad con Groovy</h1>
+        <div style="height:70px"> 
+          <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+          <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+          <p id="p3">“Making best code, through better developers”</p>
+        </div>
+      </div>
+   </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>Desarrollo web con Groovy</h1>
+<hr/><h2>Groovy Templates</h2><p>Groovy soporte varias maneras de generar texto de forma dinámica incluyendo los <em>GStrings</em>. En adición, hay un framework dedicado de template el cula está bien armado para aplicaciones donde el texto a ser generado sigue la forma de un template estático.</p><p>El frameowork de template consiste de una clase base abstracta <code>TemplateEngine</code>que debe implementar la interfaz <code>Template</code>. Con esto existen varios motores:</p>
+<ul>
+  <li><code>SimpleTemplateEngine</code> - para templates basicos</li>
+  <li><code>GStringTemplateEngine</code> - almacena el template como closures escribibles</li>
+  <li><code>XmlTemplateEngine</code> - trabaja bien cuando el template y la salida son XML válido</li>
+</ul><p>El formato de los templates es inspirado en la sintaxis de <em>JSP</em>, el <em>EL de JSP</em>, el framework <em>Velocity</em> y los GStrings. La idea es usar marcadores dentro del texto ejecutable.</p>
+<ul>
+  <li><code>$variable</code> Inserta el valor de la <em>variable</em> en el texto</li>
+  <li><code>${groovycode}</code> Evalúa una sóla lína de código Groovy, e inserta el rsultado en el texto</li>
+  <li><code>&lt;%=groovycode%&gt;</code> Evalúa el código Groovy, e inserta el resultado en el texto</li>
+  <li><code>&lt;%groovycode%&gt;</code> Evalúa el código Groovy</li>
+</ul>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> cervezas_fork_join.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.text.SimpleTemplateEngine
+
+      def text = '''\
+        Estimado "$nombre $apellidos",
+        Fue muy bueno que vinieras al entrenamiento de <% if(organizacion) organizacion else "MakingDevs"  %>.
+        Nos vemos en ${mes},
+        ${firma}
+      '''
+
+      def binding = ["nombre":"Desarrollador", "apellidos":"de Software", "organizacion":"MakingDevs", "mes":"Diciembre", "firma":"José Juan Reyes Zuñiga"]
+
+      def engine = new SimpleTemplateEngine()
+      template = engine.createTemplate(text).make(binding) // Incluso puedes user un archivo
+
+      println template.toString()
+    </pre>
+  </div>
+</div><h2>Groovlets</h2>
+<ul>
+  <li>Lo Groovlets son a Groovy, como los Servlets a Java</li>
+  <li>Al igual que cualquier otro Servlet se define en web.xml</li>
+  <li>Se mapea de la misma forma, direccionandolo hacia el nombre del Servlet</li>
+  <li>Reconoce los scripts de Groovy que están en el directorio de la aplicación</li>
+  <li>Solo necesitamos la JAR de Groovy en el directorio lib :D(yeah!!)</li>
+</ul><p>Las siguientes varibales están listas para ser usadas dentro de un Groovlet.</p>
+<ul>
+  <li><code>header</code> Es un mapa con los headers del request HTTP: <code>headers.host</code></li>
+  <li><code>params</code> Es un mapa con los parámetros del request HTTP: <code>params.myParam</code></li>
+  <li><code>session</code> ServletSession: <code>session?.myParam</code></li>
+  <li><code>request</code> HttpServletRequest: <code>request.remoteHost</code></li>
+  <li><code>response</code> HttpServletResponse <code>Response.contentType=&#39;&#39;</code></li>
+  <li><code>context</code> ServletContext <code>context.myParam</code></li>
+  <li><code>application</code> ServletContext <code>application.myParam</code></li>
+  <li><code>out</code> response.writer</li>
+  <li><code>sout</code> response.outputStream</li>
+  <li><code>html</code> MarkupBuilder</li>
+</ul>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> servlet_container.groovy</h4>
+    <pre class="brush: groovy">
+      @Grab('org.eclipse.jetty.aggregate:jetty-server:8.1.9.v20130131')
+      @Grab('org.eclipse.jetty.aggregate:jetty-servlet:8.1.9.v20130131')
+      @Grab('javax.servlet:javax.servlet-api:3.0.1')
+      import org.eclipse.jetty.server.Server
+      import org.eclipse.jetty.servlet.*
+      import groovy.servlet.*
+
+      import static org.eclipse.jetty.servlet.ServletContextHandler.*
+      def server = new Server(1234)
+      def context = new ServletContextHandler(server, "/", SESSIONS)
+      context.resourceBase = "."
+      context.addServlet(GroovyServlet, "*.groovy")
+      server.start()
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> groovlet_htmlbuilder.groovy</h4>
+    <pre class="brush: groovy">
+      html.html{
+        head {
+          title 'Demo de Groovlets'
+        }   
+        body { 
+          h1 'Bienvenido a los Groovlets de MakingDevs'
+        }
+      }
+    </pre>
+  </div>
+</div><p>Si quieres usarlo en tu propio servlet container(por si este no te convenció) entonces puedes incluirlo en tu <code>web.xml</code>, nuevamente sólo agrega la Jar de Groovy al Classpath.</p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> web.xml</h4>
+    <pre class="brush: xml">
+      <web-app xmlns="http://java.sun.com/xml/ns/javaee" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+        http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+        <servlet>
+         <servlet-name>Groovlet</servlet-name>
+         <servlet-class>groovy.servlet.GroovyServlet</servlet-class>
+       </servlet>
+       <servlet>
+         <servlet-name>Template</servlet-name>
+         <servlet-class>groovy.servlet.TemplateServlet</servlet-class> </servlet>
+         <servlet-mapping>
+           <servlet-name>Groovlet</servlet-name>
+           <url-pattern>*.groovy</url-pattern>
+         </servlet-mapping>
+         <servlet-mapping>
+           <servlet-name>Template</servlet-name>
+           <url-pattern>*.html</url-pattern>
+         </servlet-mapping>
+         <servlet-mapping>
+           <servlet-name>Template</servlet-name>
+           <url-pattern>*.gsp</url-pattern>
+         </servlet-mapping>
+       </web-app>
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> variables_groovlet.groovy</h4>
+    <pre class="brush: groovy">
+      html.html{
+        head {
+          title "Propiedades de los Groovlets"
+        }
+        title 'Propiedades de los Groovlets'
+        body {
+          h1 'Variables atadas(Binding) al servlet:'
+          table(summary:'binding') {
+            tbody {
+              binding.variables.each { key, value ->
+                tr {td key.toString()
+                  td key.toString()
+                  td(value ? value.toString() : 'null')
+                }
+              }
+            }
+          }
+        }
+      }
+    </pre>
+  </div>
+</div><h3>Buscador de cervezas</h3>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> buscador.template.html</h4>
+    <pre class="brush: html">
+      <html>
+      <head>
+        <title>Buscador de cervezas</title>
+      </head>
+      <body>
+        <h1>Buscador de cervezas</h1>
+        <form accept="buscador.groovy">
+          <label>Buscar:</label>
+          <input type="text" name="q">
+          <button type="submit">Buscar</button>
+        </form>
+        <br/>
+        <%
+          if(result){
+            out << "<label>Resultado:</label>"
+            out << "<ul>"
+            result.each { cerveza ->
+              out << """\
+                <li>${cerveza}</li>
+              """
+            }
+            out << "</ul>"
+          }
+        %>
+      </body>
+      </html>
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> buscador.groovy</h4>
+    <pre class="brush: groovy">
+      def engine   = new groovy.text.SimpleTemplateEngine()
+      def source   = getClass().classLoader.getResource('buscador.template.html')
+      def template = engine.createTemplate(source)
+      def result = []
+      if(params.q)
+        result = com.makingdevs.BuscadorDeCervezas.findAllByCervecera(params.q)
+      out << template.make(result:result)
+    </pre>
+  </div>
+</div><h2>Ratpack</h2>
+<blockquote>
+  <p>
+  Ratpack es un toolkit simple y capaz de crear aplicaciones web de alto rendimiento.
+  </p>
+</blockquote>
+<ul>
+  <li>Inspirado por el framework de Ruby: <a href="http://www.sinatrarb.com/">Sinatra</a></li>
+  <li>Ratpack está construido sobre Java y en el motor de red manejado por eventos <a href="http://netty.io/">Netty</a>. La API está optimizada para Groovy y Java 8, aunque Java 7 puede ser también usado.</li>
+  <li>Tiene integración opcional con Google Guice para proveer la escalabilidad de la aplicación en una forma administrada.</li>
+  <li>Soporte opcional de integración con Gradle</li>
+</ul><h3>¿Cuándo usar Ratpack?</h3>
+<ul>
+  <li>Micro servicios ( Single Page Applications )</li>
+  <li>Apps de alt rendimiento</li>
+  <li>Apps ligeras. Sin contenedor.</li>
+  <li>Deployment en la nube. Estrategia simple de empaquetado.</li>
+  <li>Servicios Mock en Pruebas</li>
+</ul>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> hello_ratpack.groovy</h4>
+    <pre class="brush: groovy">
+      @GrabResolver("http://oss.jfrog.org/artifactory/libs-snapshot")
+      @Grab("io.ratpack:ratpack-groovy:0.9.0-SNAPSHOT")
+      import static ratpack.groovy.Groovy.*
+
+      ratpack {
+        handlers {
+          get {
+            render "Hello world!"
+          }
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> handler_chain.groovy</h4>
+    <pre class="brush: groovy">
+      @GrabResolver("http://oss.jfrog.org/artifactory/libs-snapshot")
+      @Grab("io.ratpack:ratpack-groovy:0.9.0-SNAPSHOT")
+      import static ratpack.groovy.Groovy.*
+
+      ratpack {
+        handlers {
+          handler{
+            if(request.path.empty)
+              response.headers.set "X-UAT-Compatible", "IE=Edge,chrome=1"
+              next()
+          }
+          get {
+            response.send "text/html","""<!DOCTYPE>
+            <html>
+            <head>
+              <title></title>
+            </head>
+            <body>
+              Hola Ratpack!
+            </body>
+            </html>"""
+          }
+          post("api"){
+            reponse.send "text/html", "mandaste post"
+          }
+          assets "public", [] as String[]
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> handler_chain.groovy</h4>
+    <pre class="brush: groovy">
+      @GrabResolver("http://oss.jfrog.org/artifactory/libs-snapshot")
+      @Grapes([
+        @Grab(group='io.ratpack', module='ratpack-groovy', version='0.9.0-SNAPSHOT'),
+        @Grab(group='io.ratpack', module='ratpack-jackson', version='0.9.0-SNAPSHOT')
+      ])
+
+      import static ratpack.groovy.Groovy.*
+      import ratpack.jackson.JacksonModule
+      import static ratpack.jackson.Jackson.json
+
+      ratpack {
+        modules {
+          register new JacksonModule()
+        }
+        handlers {
+          get("some-json") {
+            render json(user: 1,lista:[1,2,3,4,5],mapa:[uno:1,dos:2,tres:3])
+          }
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+  En el sitio de <a href="http://www.ratpack.io/">Ratpack</a> podrás encontrar la documentación respectiva con la personalización del lanzamiento, los manejadores, la integración con Guice para el uso de Módulos y el Testing. Sin embargo, es mucho más recomendable leer el javadoc del proyecto.
+  </p>
+</div>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>

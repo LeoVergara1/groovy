@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+      <div class="container">
+        <h1>Productividad con Groovy</h1>
+        <div style="height:70px"> 
+          <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+          <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+          <p id="p3">“Making best code, through better developers”</p>
+        </div>
+      </div>
+   </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>Haciendo pruebas(testing) con Groovy</h1>
+<hr/><p>El desarrollo de pruebas ha llegado a ser un estándar de facto en la comunidad Java. La seguridad y estructura de <a href="http://junit.org/">JUnit</a> y otros frameworks de testing ofrecen un proceso de desarrollo casi revolucionario, si se piensa de algún modo. Probamos todos los niveles, desde la unidad hasta la integración entre sistemas. Cuando las pruebas son escritas a menudo y continuamente, el código se beneficia al llegar a ser altamente extensible, en adición a llegar a ser libre de defectos y fácil de reparar cuando sea necesario.</p>
+<div id="1"></div><h2>Unit testing</h2>
+<ul>
+  <li>Al instalar Groovy ya tienes un framework de unit testing que usa JUnit</li>
+  <li>Los test cases deben ser
+  <ul>
+    <li>Rápidos</li>
+    <li>Automatizados</li>
+    <li>Aislados</li>
+    <li>Repetibles</li>
+  </ul></li>
+  <li>No debería confundirse Unit Testing con IntegrationTesting</li>
+  <li>Tipos de Tests
+  <ul>
+    <li>Positivos
+    <ul>
+      <li>En donde sabemos que nuestra lógica funciona sin problema aparente. Camino feliz</li>
+    </ul></li>
+    <li>Negativos
+    <ul>
+      <li>Sabemos que bajo ciertas circunstancias (parámetros) nuestra prueba puede fallar, debemos probar estos escenarios.</li>
+    </ul></li>
+    <li>Excepcionales
+    <ul>
+      <li>Nuestro código debe lanzar excepciones esperadas bajo ciertos escenarios.</li>
+    </ul></li>
+  </ul></li>
+</ul>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Comenzando con el testing</h4>
+    <pre class="brush: groovy">
+      def celsius (fahrenheit) { (fahrenheit - 32) * 5 / 9 }
+      assert 20  == celsius(68)
+      assert 35  == celsius(95)
+      assert -17 == celsius(0).toInteger()
+      assert 0   == celsius(32)
+    </pre>
+  </div>
+</div><h3>GroovyTestCase</h3>
+<ul>
+  <li>Solo necesitamos extender nuestras clases de GroovyTestCase</li>
+  <li>Los métodos de prueba deben ser void, además de empezar por la palabra test y no recibir parámetros.</li>
+  <li>Adicional a <a href="http://junit.sourceforge.net/javadoc/org/junit/Assert.html">las aserciones proveídas por JUnit</a>, <code>GroovyTestCase</code> provee de algunas más:
+  <ul>
+    <li><code>assertArrayEquals(Object[] expected, Object[] value)</code></li>
+    <li><code>assertLength(int length, char[] array)</code></li>
+    <li><code>assertLength(int length, int[] array)</code></li>
+    <li><code>assertLength(int length, Object[] array)</code></li>
+    <li><code>assertContains(char expected, char[] array)</code></li>
+    <li><code>assertContains(int expected, int[] array)</code></li>
+    <li><code>assertToString(Object value, String expected)</code></li>
+    <li><code>assertInspect(Object value, String expected)</code></li>
+    <li><code>assertScript(final String script) // assert para correr un script din errores</code></li>
+    <li><code>shouldFail(Closure code)</code></li>
+    <li><code>shouldFail(Class clazz, Closure code)</code></li>
+  </ul></li>
+</ul>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> GroovyTestCase</h4>
+    <pre class="brush: groovy">
+      import groovy.util.GroovyTestCase
+
+      class MyTest extends GroovyTestCase {
+        void testSomething() {
+          assert 1 == 1
+          assert 2 + 2 == 4 : "We're in trouble, arithmetic is broken"
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> NonEmptyPilaSimpleTest.groovy</h4>
+    <pre class="brush: groovy">
+      // Clase groovy que hereda de GTC
+      class NonEmptyPilaSimpleTest extends GroovyTestCase {
+        // Definiciuón de nuestro elemento a probar
+        private stack
+
+        // Al igual que en JUnit podemos contar con este método
+        void setUp() {
+          // Inicializació del elemento
+          stack = new PilaSimple()
+          // Agregamos 3 elementos a la pila
+          [ "a", "b", "c" ].each{ x -> stack.push x }
+        }
+
+        // Los métodos de prueba inician con la palabra 'test'
+        void testPreCondiciones() {
+          // La pila no esta vacia
+          assert !stack.isEmpty()
+        }
+
+        void testPushAndPeek() {
+          // Agregamos un elemeneto
+          stack.push "d"
+          // Observamos el último elemento agregado
+          assert stack.peek() == "d"
+        }
+
+        void testPushPopAndPeek() {
+          // Introducimos un elemento
+          stack.push "anything"
+          // Sacamos el elemento
+          stack.pop()
+          // Observamos el elemento en el tope de la pila
+          assert stack.peek() == "c"
+        }
+
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> EmptyPilaSimpleTest.groovy</h4>
+    <pre class="brush: groovy">
+      class EmptyPilaSimpleTest extends GroovyTestCase {
+        // Definición de la pila
+        private stack = new PilaSimple()
+
+        // La pila esta vacía
+        void testPreConditions() {
+          assert stack.isEmpty()
+        }
+
+        // Como la pila esta vacía esto arroja excepcion
+        void testPeekWithEmptyStack() {
+          // Uso de shouldFail, para que tenga exito debe arrojar excepción
+          shouldFail(RuntimeException) {
+            stack.peek()
+          }
+        }
+
+        void testPopWithEmptyStack() {
+          shouldFail(RuntimeException) {
+            stack.pop()
+          }
+        }
+      }
+    </pre>
+  </div>
+</div>
+<blockquote>
+  <p>Recuerda...Es posible probar los componentes que programas en Java usando el GroovyTestCase!</p>
+</blockquote>
+<div id="2"></div><h2>Stubs y Mocks</h2><p>Groovy tiene un soporte excelentemente construido para un rango de alternativas de mocking. Antes de considerarlos revisemos algunos términos relevantes:</p>
+<ul>
+  <li><strong>Colaborador(Collaborator)</strong> Una instancia de clase Groovy o Java en la cual sus métodos de clase o instancia son llamados.</li>
+  <li><strong>Invocador(Caller)</strong> Un objeto Groovy que llama al método sobre el colaborador.</li>
+  <li><strong>Mock</strong> Un objeto que puede ser usado para aumentar el colaborador. Las llamadas a los métodos del colaborador serán manejadas por el Mock, mostrando un comportamiento demandante(demand). Las llamadas a los métodos son esperadas a que ocurran estrictamente en la secuencia demandada con un rango dado de cardinalidad</li>
+</ul><p>En Groovy tenemos dos elementos para interactuar con los colaboradores en un prueba: <strong>StubFor</strong> y <strong>MockFor</strong></p><h3>StubFor</h3><p>StubFor soporta pruebas de unidad de clases en aislamiento permitiendo una expectativa débilmente ordenada en la conducta de los colaboradores que se definan. Un escenario típico involucra una clase bajo prueba y uno o más colaboradores. En dicho escenario es deseable sólo probar la lógica de negocio de la clase bajo prueba. Y un estrategia para hacerlo es reemplazar la instancia del colaborador con objetos stubs a ser creados con meta programación. El comportamiento deseado de los colaboradores es definido como el comportamiento de la especificación, y dicho comportamiento puede ser checado por el método <code>verify()</code>. Con StubFor, una expectativa es una secuencia independiente y el uso de verify es delegado al desarrollador.</p><h3>MockFor</h3><p>MockFor soporta pruebas de unidad de clases en aislamiento permitiendo una expectativa ordenada estrictamente del comportamiento de los colaboradores a ser definidos. Un escenario típico involucra una clase bajo prueba y uno o más colaboradores. En dicho escenario es deseable sólo probar la lógica de negocio de la clase bajo prueba. Y un estrategia para hacerlo es reemplazar la instancia del colaborador con objetos mocks a ser creados con meta programación. El comportamiento deseado de los colaboradores es definido como el comportamiento de la especificación, y dicho comportamiento es forzado y checado automáticamente. Con MockFor una expectativa de mock es siempre una secuencia dependiente y el uso automáticamente termina con <code>verify()</code>.</p><p>Las siguientes características son soportadas:</p>
+<ul>
+  <li>Típico estilo de mocks para fallos tempranos</li>
+  <li>Mocks para métodos de instancia y de clase</li>
+  <li>Mocks para acceso a propiedades usando getters y setters</li>
+  <li>Mocks para métodos final y colaboradores final</li>
+  <li>Mocks para colaboradores Groovy y Java</li>
+  <li>Poder hacer todos los mocks de una clase dada</li>
+  <li>Hacer el mock incluso si el colaborador no puede ser inyectado en el invocador</li>
+  <li>Hacer el mock incluso si el colaborador no puede ser accesible en el invocador</li>
+  <li>Demandar las llamadas específicadas vía los registros del objeto Demand</li>
+  <li>Cardinalidad específicada con números o rangos, el default es 1..1</li>
+  <li>Específicar comportamiento vía Closures</li>
+  <li>No depender de librerías externas</li>
+  <li>Hacer mocks de constructores</li>
+  <li>Entre algunos otros&hellip;</li>
+</ul><h3>Stubs vs. Mocks</h3><p>En un <em>stub</em> se coloca un objeto real. Simplemente replica la respuesta esperada cuando el código llega a ser llamado. La respuesta esta establecida para satisfacer las necesidades de que la prueba pase. Un objeto <em>mock</em> hace más que un <em>stub</em>, pues nos ayuda a verificar que el código está interactuando con sus dependencias, los coaboradores, como es esperado. Mantiene el rastreo y la secuencia del número de llamadas que nuestro código hace al colaborador. En donde el <em>stub</em> verifica el estado, el <em>mock</em> verifica el comportamiento. Cuando usamos <em>mock</em> en nuestras pruebas, verificamos no sólo el estado, sino además el comportamiento de la interacción de nuestro código con sus dependencias.</p>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> stubs_mocks.groovy</h4>
+    <pre class="brush: groovy">
+      class Dao{
+        void inserta(Object o){
+          throw new RuntimeException('Insertate esta excpeción...')
+        }
+        Object lee(long id){
+          throw new RuntimeException('Leete esta excpeción...')
+        }
+        int actualiza(Object o){
+          throw new RuntimeException('Actualizate esta excpeción...')
+        }
+        int borra(long id){
+          throw new RuntimeException('Borrate esta excpeción...')
+        }
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> stubs_mocks.groovy</h4>
+    <pre class="brush: groovy">
+      class Service{
+        Dao dao = new Dao()
+
+        void doMetodo1(){
+          dao.inserta(new Object())
+        }
+        Object doMetodo2(long id){
+          dao.lee(id)
+        }
+
+        int doMetodoComplejo(long id){
+          Object o = dao.lee(id)
+          //Cambios al objeto
+          int i = dao.actualiza(o)
+          int j = dao.borra(id)
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> stubs_mocks.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.mock.interceptor.*
+
+      class StubAndMockTest extends GroovyTestCase{
+
+        void testExcepciones(){
+          def service = new Service()
+          shouldFail { service.doMetodo1() }
+          shouldFail(RuntimeException) { service.doMetodo2() }
+          shouldFail RuntimeException, { service.doMetodoComplejo() }
+        }
+
+        void testStubs(){
+          def dao = new StubFor( Dao )
+
+          dao.demand.inserta { "Insertado..." }
+          dao.demand.lee(2) { id -> id }
+          dao.demand.borra { id -> 0 }
+          dao.demand.actualiza { id -> 0}
+          dao.use{
+            def service = new Service()
+            service.doMetodo1()
+            assert 3 == service.doMetodo2(3)
+            service.doMetodoComplejo(3)
+          }
+          dao.expect.verify()
+        }
+
+        void testMocks(){
+          def dao = new MockFor( Dao )
+
+          dao.demand.inserta { "Insertado..." }
+          dao.demand.lee(2) { id -> id }
+          dao.demand.actualiza() { id -> 0}
+          dao.demand.borra() { id -> 0 }
+          dao.use{
+            def service = new Service()
+            service.doMetodo1()
+            assert 3 == service.doMetodo2(3)
+            service.doMetodoComplejo(3)
+          }
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+  Sin lugar a dudas una de las lecturas recomendadas acerca de Mocks y Stubs la tiene Martin Fowler en su blog con el título: <a href="http://martinfowler.com/articles/mocksArentStubs.html">Mocks Aren't Stubs</a>
+  </p>
+</div>
+<div id="3"></div><h2>Testing con Spockframework</h2>
+<blockquote>
+  <p>Spock es un framework de testing y especificación para aplicaciones Java y Groovy. Lo que lo hace destacar entre la multitud es su hermoso lenguaje y la especificación altamente expresiva.</p>
+</blockquote>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> given_when_then.groovy</h4>
+    <pre class="brush: groovy">
+      @Grapes(
+        @Grab(group='org.spockframework', module='spock-core', version='0.7-groovy-2.0')
+      )
+      import spock.lang.Specification
+
+      class GivenWhenThenSpec extends Specification {
+        def "Agregar un nuevo item a un set"() {
+          given:
+          def bag = [4, 6, 3, 2] as Set
+          
+          when: 
+          bag << 1
+          
+          then:
+          bag.size() == 5
+        }
+      }
+    </pre>
+  </div>
+</div><h3>Elementos esenciales de Spock</h3><p>Spock te permite escribir específicaciones que describen características esperadas (propiedades, aspectos) exhibidas por un sistema de interés. El sistema de interés puede ser desde una simple clase hasta una aplicación entera, y además es llamado <em>sistema bajo especificación</em>. La descripción de una característica comienza con una captura específica del <em>sistema bajo espcificación</em> y sus colaboradores. Esta captura es llamada accesorio de función.</p><p>El paquete más importante en spock es <code>import spock.lang.*</code>, pues contiene todos los elementos necesarios para levantar un Spec.</p><p>Un Spec es representado por una clase Groovy que hereda de <code>spock.lang.Specification</code>. Y la clase <code>Specification</code> contiene métodos de conveniencia para escribir especificaciones. </p><p>De forma general una especificación sería:</p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Specification</h4>
+    <pre class="brush: groovy">
+      import spock.lang.*
+
+      class MySpecification extends Specification {
+        // Campos
+        def obj = new ClaseBajoSpec()
+        def coll = new Colaborador()
+
+        // Métodos comúnes o de accesorio
+        def setup() {}          // corre antes de cada feature
+        def cleanup() {}        // corre después de cada feature
+        def setupSpec() {}     // corre antes de cualquier feature
+        def cleanupSpec() {}   // corre hasta al terminarse de ejecutar el último feature
+
+        // Métodos de features o características a probar
+        def "Dado un estimulo al sistema/clase se espera una respuesta"(){
+
+        }
+
+        // Especificando a Spock
+        def "mostrar el ciclo de ejecución de Spock"(){
+          setup: "Aqui puedes inicializar recursos que necesites para la especificacion"
+            println "Inicializando recursos para\t\t${a}\t\t${b}\t\t${tamanio}"
+          and: "Y algo más si lo deseas"
+          //given: "O bien contextualizarlo como un feature con given-when-then, es un alias de setup"
+          when: "Ejecutas acciones concretas, incluso de objetos no definidos aún"
+            a.toLowerCase()
+          then: "Evaluas los resultados de las acciones, por lo generla ocurrió algún efecto colateral"
+            a.size() == tamanio
+          expect: "Similar a when-then juntos, pero se usa para métodos pruamente funcionales"
+            a.toLowerCase() == b
+          cleanup: "Aqui puedes inicializar recursos que necesites para la especificacion"
+            println "Limpiando recursos para\t\t\t\t${a}\t\t${b}\t\t${tamanio}"
+          where: "Condiciones varias que serán evaluadas tantas veces como valores tengamos"
+            a       | b       | tamanio
+            "HOLA"  | "hola"  | 4
+            "MUNDO" | "mundo" | 5
+        }
+
+        // Métodos de ayuda
+        def metodoQueValidaLaSalida(){}
+      }
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+  Uno de los esfuerzos más grandes que se han hecho con Spock y también de los más solicitados es la documentación, es por eso que te recomendamos:
+  <ul>
+    <li><a href="https://code.google.com/p/spock/">El sitio original de Spock</a></li>
+    <li><a href="http://docs.spockframework.org/en/latest/">La documentación de referencia</a></li>
+  </ul>
+  Además de mencionar que las mismas características para la creación de Mocks y Stubs esta disponible en spock de una forma más elegante.
+  </p>
+</div><h4>Profundizando en Spock(Data driven testing)</h4>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> datatables.groovy</h4>
+    <pre class="brush: groovy">
+      @Grab(group='org.spockframework', module='spock-core', version='0.7-groovy-2.0')
+
+      import spock.lang.*
+
+      class MaximoSpec extends Specification {
+        def "El máximo de dos números"() {
+          expect:
+          Math.max(a, b) == c
+
+          where:
+          a | b | c
+          1 | 3 | 3
+          7 | 4 | 7
+          0 | 0 | 0
+        }
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> unroll_datapipes.groovy</h4>
+    <pre class="brush: groovy">
+      @Grab(group='org.spockframework', module='spock-core', version='0.7-groovy-2.0')
+
+      import spock.lang.*
+
+      class MaximoSpec extends Specification {
+        def "El máximo de dos números"() {
+          expect:
+          Math.max(a, b) == c
+
+          where:
+          a | b | c
+          1 | 3 | 3
+          7 | 4 | 7
+          0 | 0 | 0
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> multivar_datapipes.groovy</h4>
+        <pre class="brush: groovy">
+      @GrabConfig(systemClassLoader=true)
+      @Grapes([
+        @Grab(group='org.spockframework', module='spock-core', version='0.7-groovy-2.0'),
+        @Grab(group='mysql', module='mysql-connector-java', version='5.1.26')
+      ])
+
+      import spock.lang.*
+      import groovy.sql.*
+
+      class MaximoSpec extends Specification {
+
+      @Shared db = [
+        url:'jdbc:mysql://localhost/groovy_issue_tracker',
+        user:'makingdevs',
+        password:'makingdevs',
+        driver:'com.mysql.jdbc.Driver'
+      ]
+      @Shared sql = Sql.newInstance(db.url, db.user, db.password, db.driver)
+
+        @Unroll
+        def "El máximo de #a y #b es #c"() {
+          expect:
+          Math.max(a, b) == c
+
+          where:
+          [a, b, c] << sql.rows("select a, b, c from maxdata")
+        }
+      }
+    </pre>
+  </div>
+</div>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>

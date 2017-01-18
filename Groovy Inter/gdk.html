@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+      <div class="container">
+        <h1>Productividad con Groovy</h1>
+        <div style="height:70px"> 
+          <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+          <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+          <p id="p3">“Making best code, through better developers”</p>
+        </div>
+      </div>
+   </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>El GDK</h1>
+<hr/><p>Groovy no solo brinda la fortaleza de los lenguajes dinámicos dentro de la JVM, además mejora el viejo conocido JDK. Lo hace con métodos de conveniencia, algunos de los cuales hacen uso extensivo de closures. Estas extensiones son llamadas el Groovy JDK o GDK. Cuando tratamos un objeto con Java o con Groovy, no estamos haciendo ningún tipo de conversión. Es el mismo objeto de ambos lado de los lenguajes, sin embargo, lo que vemos del lado Groovy es un objeto mejorado gracias a los métodos agregados para hacerlo más conveniente de usar.</p><h3>Objetos interactivos</h3>
+<ul>
+  <li><code>dump</code> regresa una descripción del estado del objeto</li>
+  <li><code>inspect</code> hace su mejor esfuerzo para regresar un objeto que podría aparecer en el código fuente Groovy</li>
+  <li><code>properties</code> obtiene un mapa con los atributos del objeto</li>
+  <li>El uso de <code>with</code> puede ayudar a simplificar el uso de la creación de objetos</li>
+</ul>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> Métodos del GDK</h4>
+    <pre class="brush: groovy">
+      "hola mundo".inspect()
+      "hola mundo".dump()
+      "hola mundo".properties
+
+      class MyClass {
+        def first = 1
+        def getSecond() { first * 2 }
+        public third = 3
+        def myMethod() { }
+      }
+
+      def obj = new MyClass()
+      assert obj.hasProperty('first')
+      assert obj.respondsTo('myMethod')
+
+      def keys = ['first', 'second', 'class']
+      assert obj.properties.keySet() == new HashSet(keys)
+      assert 1 == obj.properties['first']
+      assert 1 == obj.properties.first
+
+      assert 1 == obj.first
+      assert 1 == obj['first']
+      def one = 'first'
+      def two = 'second'
+      obj[one] = obj[two]
+      assert obj.dump() =~ 'first=2'
+
+      def object = new MyClass().with {
+        first = 10
+        third = 30
+      }
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> categories.groovy</h4>
+    <pre class="brush: groovy">
+      //Definimos la clase que permitira ser la categoria
+      class FormatUtil{
+        //Para que un metodo pueda ser categorizado, debe ser static
+        def static toFormat(numero){
+          //Implementamos nuestra categoria
+          if(numero.size()==10){
+            return "${numero[0..2]}-${numero[3..5]}-${numero[6..9]}"
+          }
+        }
+      }
+
+      //Con ayuda de la palabra reservada 'use' aplicamos la categoria
+      use(FormatUtil){
+        println "5518503078".toFormat()
+        println new StringBuffer("5512345678").toFormat()
+      }
+      //La categoria queda fuera del contexto de use
+      try{
+        println "5518503078".toFormat()
+      }catch(MissingMethodException e){
+        println e.message
+      }
+    </pre>
+  </div>
+</div>
+<div id="1"></div><h2>Manejo de archivos</h2>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> archivos_directorios.groovy</h4>
+    <pre class="brush: groovy">
+      println new File("archivos_directorios.groovy").text
+
+      //Vamos a explorar lo archivos
+      home = new File("/")
+      println home.getClass().getName()
+      dirs = []
+      files = []
+
+      home.eachDir {
+        dirs << it.name
+      }
+
+      home.eachFile {
+        files << it.name
+      }
+
+      println "Directorios"
+      println dirs
+
+      println "Archivos"
+      println files
+
+      file = new File('.')
+      println file.name
+      println file.absolutePath
+      println file.canonicalPath
+      println file.directory
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> lectura_archivos.groovy</h4>
+    <pre class="brush: groovy">
+      def file = new File("the_early_history_of_smalltalk.txt")
+      List lines = file.readLines()
+      println "Número de líneas: ${lines.size()} "
+      Integer contadorPalabras = 0
+      file.splitEachLine(" ") { palabras ->
+        println "Para ésta línea hay ${palabras.size()} palabras"
+        contadorPalabras += palabras.size()
+      }
+      println "El número de palabras es ${contadorPalabras}"
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> escritura_archivos.groovy</h4>
+    <pre class="brush: groovy">
+      //escribamos a un archivo
+      File file = new File("hola.txt")
+      file.write("hola mundo!!!\n")
+      println file.text
+
+      //agreguemos data al archivo sin borrar lo que ya tenemos
+      file.append("Como les va??? que hay de nuevo???\n")
+      file << "Aqui estamos en la sesión de Groovy\n"
+
+      //copiemos el archivo
+      new File("file_copy.txt").write(file.text)
+
+      //copiemos ahora un archivo binario
+      File img = new File("imagen.jpg")
+      new File("imagen_copy.jpg").withOutputStream{ out ->
+        out.write img.readBytes()
+      }
+
+      //No me gusto ninguno de los anteriores quiero mi propie metodo para copiar
+      File.metaClass.copiaElFuckingFile = { String destName ->
+        if(delegate.isFile()){
+          "cp ${delegate.name} ${destName}".execute()
+        }
+      }
+
+      new File("imagen.jpg").copiaElFuckingFile("imagen_copy2.jpg")
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> streams.groovy</h4>
+    <pre class="brush: groovy">
+      File tempDir = File.createTempDir()
+      assert tempDir.directorySize() == 0
+      File source = new File(tempDir, 'input.dat')
+      source.bytes = "hello world".bytes
+      assert tempDir.directorySize() == 11
+      File destination = new File(tempDir, 'output.dat')
+      destination.withDataOutputStream { outputSource->
+        source.withDataInputStream { inputSource ->
+          outputSource << inputSource  
+        }
+      }
+      assert tempDir.directorySize() == 22
+      tempDir.deleteDir()
+    </pre>
+  </div>
+</div>
+<div id="2"></div><h2>Lectura y creación de XML</h2>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> dom_parser.groovy</h4>
+    <pre class="brush: groovy">
+      import javax.xml.parsers.DocumentBuilderFactory
+
+      def fac     = DocumentBuilderFactory.newInstance()
+      def builder = fac.newDocumentBuilder()
+      def doc     = builder.parse(new FileInputStream('makingdevs.xml'))
+
+      //document = groovy.xml.DOMBuilder.parse(new FileReader('makingdevs.xml'))
+      //rootElement = document.documentElement
+      def document = doc.documentElement
+      use(groovy.xml.dom.DOMCategory){
+        println "Entrenamiento en ${document.'@organization'}"
+        document.roadmap.category.each{ category ->
+          println "\t* ${category.'@name'}"
+          for(course in category.course){
+            println "\t\t- ${course.text().trim()} / Duration: ${course.'@duration'} hours in ${course.'@sessions'} sessions."
+          }
+        }
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> parser_slurper.groovy</h4>
+    <pre class="brush: groovy">
+      entrenamientoParser = new XmlParser().parse('makingdevs.xml')
+      println "Entrenamiento en ${entrenamientoParser.'@organization'} - XmlParser"
+      entrenamientoParser.roadmap.category.each{ category ->
+        println "\t* ${category.'@name'}"
+        for(course in category.course){
+          println "\t\t- ${course.text().trim()} / Duration: ${course.'@duration'} hours in ${course.'@sessions'} sessions."
+        }
+      }
+
+      entrenamientoSlurper = new XmlSlurper().parse('makingdevs.xml')
+      println "Entrenamiento en ${entrenamientoSlurper.'@organization'} - XmlSlurper"
+      entrenamientoSlurper.roadmap.category.each{ category ->
+        println "\t* ${category.'@name'}"
+        for(course in category.course){
+          println "\t\t- ${course.text().trim()} / Duration: ${course.'@duration'} hours in ${course.'@sessions'} sessions."
+        }
+      }
+
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> slurper_ns.groovy</h4>
+    <pre class="brush: groovy">
+      entrenamiento = new XmlSlurper().parse('makingdevs_ns.xml').declareNamespace(fundamentals:'Essential')
+
+      println "Entrenamiento: "
+      println entrenamiento.roadmap.category.course.collect { "\t * ${it.@name}" }.join('\n')
+
+      println "Entrenamiento esencial: "
+      println entrenamiento.roadmap.category.'fundamentals:course'.collect { "\t * ${it.@name}" }.join('\n')
+
+      // El método parse puede recibir: org.xml.sax.InputSource, java.io.File, 
+      // java.io.InputStream, java.io.Reader, un String uri, un String text
+
+      // Los métodos comúnes de Node y de GPathReesult son:
+      // name(), text(), parent(), children(), attributes()
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> create_xml.groovy</h4>
+    <pre class="brush: groovy">
+      def entrenamientoMap = [:]
+      entrenamiento.roadmap.category.each{ cat ->
+        entrenamientoMap."${cat.@name}" = cat.course.collect { c -> 
+          ['duration':"${c.@duration}",'sessions':"${c.@sessions}",'name':"${c.@name}"] 
+        }
+      }
+
+      String buffer = ""
+      buffer+="<entrenamiento>"
+      entrenamientoMap.each{ key,value ->
+        buffer += """\
+          <categoria>
+            <nombre>$key</nombre>
+            ${owner.listaDeCursos(value.flatten())}
+          </categoria>
+        """
+      }
+      buffer+="</entrenamiento>"
+
+      def listaDeCursos(lista) {
+        def nodo = "<cursos>"
+        nodo += lista.collect { c ->
+          """\
+            <curso>
+              <duracion>${c.duration}</duracion>
+              <sesiones>${c.sessions}</sesiones>
+              <nombre>${c.name}</nombre>
+            </curso>
+        """
+        }.join('')
+        nodo += "</cursos>"
+      }
+      println buffer
+
+      xmlDocument = new groovy.xml.StreamingMarkupBuilder().bind{
+        mkp.xmlDeclaration()
+        mkp.declareNamespace(makingdevs:"MakingDevs")
+        entrenamiento{
+          comment << "Documento con StreamingMarkupBuilder"
+          entrenamientoMap.each{ cat,cursos ->
+            makingdevs.categoria(nombre:cat){
+              cursos.each { c ->
+                curso(nombre:c.name){
+                  duracion(c.duration)
+                  sesiones(c.sessions)
+                }
+              }  
+            }
+          }
+        }
+      }
+
+      println xmlDocument
+    </pre>
+  </div>
+</div>
+<div id="3"></div><h2>Lectura y creación de JSON</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> manipulating_json.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.json.*
+
+      def payload = new URL("http://api.openbeerdatabase.com/v1/beers.json").text
+
+      def jsonSlurper = new JsonSlurper()
+      def doc = jsonSlurper.parseText(payload)
+
+      doc.beers.each{ beer ->
+        println "$beer.name de $beer.brewery.name "
+      }
+
+      def jsonBuilder = new JsonBuilder()
+
+      jsonBuilder.curso {
+        nombre 'Productividad con Groovy'
+        duracionEnHoras 10
+        instructor "MakingDevs"
+        alumnos {
+          alumno1 {
+            nombre "Desire"
+          }
+          alumno2 {
+            nombre "Xiomara"
+          }
+        }
+      }
+
+      println jsonBuilder.toString()
+
+      println JsonOutput.prettyPrint(jsonBuilder.toString())
+    </pre>
+  </div>
+</div>
+<div id="4"></div><h2>Manipulación de bases de datos</h2><p>Los lenguajes de scripting como PHP, Python y Ruby proveen de un acceso inmediato y simple. Ahora con Groovy, el soporte de concetividad de base de datos nombrado como GSQL es el JDBC plano con azúcar sintáctica. Toma sólo un par de clases: <code>Sql</code>, <code>DataSet</code>, <code>GroovyResultSet</code> y <code>GroovyRowResult</code>. El GSQL asciende el nivel de JDBC a un nivel muy amigable, y en algunos casos mejor que ofrecido por otros lenguajes de scripting. Además, combina bien el nivel de objetos.</p><p>Las bases de datos relacionales además revelan información adicional de ellas mismas, la cual es llamada metadata. Esto es datos de los datos, información de las tablas, los campos y demás elementos de la base de datos. Esta información puede ser accedida muy fácilmente con GSQL.</p><h3>DriverManager vs. DataSource</h3><p>Aunque el uso de un DriverManager aún se admite para la compatibilidad con versiones anteriores, el uso de DataSource es generalmente preferible. Además de proporcionar una conexión a la base de datos, puede administrar opcionalmente un conjunto de conexiones y apoyar transacciones distribuidas. Debido a que la obtención de conexiones a una base de datos es una operación que consume tiempo, es común reutilizarlas. El pool de conexiones es una instalación de almacenamiento que le proporciona una conexión. Tienes que pasar la conexión de nuevo después de su uso para que otros puedan reutilizar. Si olvidó devolverlo, el pool es inútil. Para evitarlo, Groovy SQL transparentemente devuelve la conexión.</p><p>Los DataSources llegan a ser más importantes cuando se corren ambientes administrados como un servidor de aplicaciones. El proveedor de base de datos provee su propia implementación de la interface <code>javax.sql.DataSource</code>, y la clase <code>Sql</code> de Groovy tiene todo para tratarla.</p><h4>Uso de @Grapes y @Grab</h4>
+<blockquote>
+  Grape te deja agregar rápidamente una dependencia del repositorio de Maven al classpath.
+</blockquote>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Agregando dependencias</h4>
+    <pre class="brush: groovy">
+      // Agregando una dependencia
+      @Grab(group='org.springframework', module='spring-jdbc', version='3.0.5.RELEASE') 
+
+      // Agregando un repo adicional
+      @GrabResolver(name='restlet', root='http://maven.restlet.org/')
+      @Grab(group='org.restlet', module='org.restlet', version='1.1.6')
+      
+      // Excluyendo dependencias transitivas
+      @Grab('net.sourceforge.htmlunit:htmlunit:2.8')
+      @GrabExclude('xml-apis:xml-apis')
+
+      // Para los drivers JDBC
+      @GrabConfig(systemClassLoader=true)
+      @Grab(group='mysql', module='mysql-connector-java', version='5.1.6')
+
+      // Múltiples dependencias
+      @Grapes([
+        @Grab(group='org.springframework', module='spring-jdbc', version='3.0.5.RELEASE'),
+        @Grab(group='hsqldb', module='hsqldb', version='1.8.0.10')
+      ])
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> using_grab.groovy</h4>
+    <pre class="brush: groovy">
+      @GrabConfig(systemClassLoader=true)
+      @Grapes([
+        @Grab(group='org.springframework', module='spring-jdbc', version='3.0.5.RELEASE'),
+        @Grab(group='mysql', module='mysql-connector-java', version='5.1.26')
+      ])
+
+      import org.springframework.jdbc.core.JdbcTemplate
+      import org.springframework.jdbc.datasource.DriverManagerDataSource
+      import org.springframework.jdbc.core.RowMapper
+      import groovy.transform.*
+
+      class Issue{
+        Long id
+        String description
+        Integer priority
+        Date dateCreated
+      }
+
+      def dataSource = new DriverManagerDataSource("com.mysql.jdbc.Driver", "jdbc:mysql://localhost/groovy_issue_tracker", "makingdevs", "makingdevs") 
+      def jt = new JdbcTemplate(dataSource:dataSource)
+      int contador = jt.queryForInt("select count(*) from Issue")
+      println "Existen ${contador} Issues"
+
+      def lista = jt.query("Select * from Issue",{ resultset,rownum -> 
+        new Issue(id:resultset.getLong(1)) } as RowMapper
+      )
+
+      lista.each { println it.id }
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+  Puedes profundizar en el uso de Grab al consultar la <a href="http://groovy.codehaus.org/Grape">documentación completa</a>.
+  </p>
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> connecting_populating.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.sql.Sql
+
+      // Crea la base de datos
+      // create database groovy_issue_tracker;
+      def db = [
+        url:'jdbc:mysql://localhost/groovy_issue_tracker',
+        user:'makingdevs',
+        password:'makingdevs',
+        driver:'com.mysql.jdbc.Driver'
+      ]
+      def sql = Sql.newInstance(db.url, db.user, db.password, db.driver)
+      // Si tienes un dataSource o un pool de conexiones lo puedes usar
+      // def sql = new Sql(dataSource)
+      sql.execute "drop table if exists issue;"
+
+      sql.execute """
+        create table if not exists issue(
+          id integer primary key auto_increment, 
+          description varchar(255), 
+          priority integer, 
+          date_created datetime);
+      """
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> connecting_populating.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.sql.Sql
+
+      // Crea la base de datos
+      // create database groovy_issue_tracker;
+      def db = [
+        url:'jdbc:mysql://localhost/groovy_issue_tracker',
+        user:'makingdevs',
+        password:'makingdevs',
+        driver:'com.mysql.jdbc.Driver'
+      ]
+
+      sql.execute """
+        insert into issue(description,priority,date_created) values
+          ('No funciona el Login',1,now()),
+          ('No hay estilo CSS',2,now()),
+          ('No se puede crear el cliente',3,now()),
+          ('Faltan validaciones',4,now()),
+          ('No se puede acceder al menu',1,now()),
+          ('No se crean facturas',2,now()),
+          ('No se puede capturar emisor',3,now()),
+          ('No se puede capturar receptor',4,now()),
+          ('No se puede acceder al sistema',1,now());
+      """
+
+      sql.eachRow("SELECT * FROM issue") { r ->
+        println r
+      }      
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> metadata.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.sql.Sql
+
+      def db = [
+        url:'jdbc:mysql://localhost/groovy_issue_tracker',
+        user:'makingdevs',
+        password:'makingdevs',
+        driver:'com.mysql.jdbc.Driver'
+      ]
+
+      def sql = Sql.newInstance(db.url, db.user, db.password, db.driver)
+
+      processMeta = { metaData ->
+        printf "%-10s %-40s %-15s %s\n",metaData.getColumnLabel(1),metaData.getColumnLabel(2),metaData.getColumnLabel(3),metaData.getColumnLabel(4)
+      }
+
+      consulta = "SELECT * FROM issue"
+      sql.eachRow(consulta,processMeta){
+        printf "%-10s %-40s %-15s %s\n",it.id,it.description,it[2],it[3]
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> inserting_data.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.sql.Sql
+
+      def db = [
+        url:'jdbc:mysql://localhost/groovy_issue_tracker',
+        user:'makingdevs',
+        password:'makingdevs',
+        driver:'com.mysql.jdbc.Driver'
+      ]
+      def sql = Sql.newInstance(db.url, db.user, db.password, db.driver)
+
+      def params = ["No se muestra el listado",2,new Date()-10]
+      def insertSql = "insert into issue(description,priority,date_created) values( ?,?,?);"
+
+      // sql.execute insertSql, params // PreparedStatement
+
+      //Ahora usemos dataset y dejemos que haga el trabajo por nosotros...
+      dataset = sql.dataSet('issue')
+      //busquemos solo unos clientes bajo el id
+      filterIssues = dataset.findAll{
+        it.id >= 3 && it.id<=6
+      }
+      println "Mostrando los issues con el ID entre 3 y 6"
+      filterIssues.each{ 
+        printf "%-10s %-40s %-15s %s\n",it.id,it.description,it[2],it[3]
+      }
+      println "SQL: " + filterIssues.sql
+      //Solo los siguientes parametros son validos dentro de la busqueda en un dataset
+      // && and
+      // || or
+      // == =
+      // it.propiedad propiedad
+      // contante ?
+
+      def counter = sql.firstRow("SELECT count(*) as counter FROM issue;")['counter']
+      println "La cantidad de issues actual es: $counter"
+      println "Agregando un issue nuevo"
+      dataset.add(
+        description:"Queremos cervezas en la oficina!",
+        priority:4,
+        date_created:new Date() - 5
+      )
+      println "La cantidad de issues actual es: ${sql.rows('SELECT * FROM issue').size()}"
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>Groovy soporta la llamada a Stored Procedures con <code>call</code>, transacciones con el closure <code>withTransaction</code> y  operaciones en batch con el closure <code>withBatch</code>; para ello te recomendamos consultar <a href="http://groovy.codehaus.org/api/groovy/sql/Sql.html">la documentación de Sql</a>.</p>
+</div>
+<div id="5"></div><h2>Aplicaciones con Swing</h2>
+<blockquote>
+  <p>¿Por qué ya no desarrollas aplicaciones Desktop?¿Y menos con Java?</p>
+</blockquote>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> swingBuilder.groovy</h4>
+    <pre class="brush: groovy">
+      bldr = new groovy.swing.SwingBuilder()
+
+      contador = 0
+
+      frame = bldr.frame(
+        title:"Swing",
+        size:[200,100],
+        layout:new java.awt.FlowLayout(),
+        defaultCloseOperation: javax.swing.WindowConstants.EXIT_ON_CLOSE
+      ){
+        lbl = label(text:"Prueba")
+        btn = button(text:'Presioname', actionPerformed:{
+          contador++
+          btn.text="Presionado ${contador} veces"
+          lbl.text="Groovy mostrado $contador veces"
+        })
+      }
+      frame.show()
+
+      frame2 = bldr.frame(title:'Demo'){
+        menuBar{
+          menu('File'){
+            menuItem 'New...'
+            menuItem 'Open...'
+          }
+        }
+        panel{
+          label 'Etiqueta'
+          slider()
+          comboBox(items:['uno','dos','tres'])
+        }
+      }
+      frame2.pack()
+      frame2.show()
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> fullSwingBuilder.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.swing.SwingBuilder
+      import javax.swing.*
+      import javax.swing.tree.DefaultMutableTreeNode as TreeNode
+
+      swing = new SwingBuilder()
+
+      salir = swing.action(
+        name:'Salir',
+        closure:this.&salirAction,
+        mnemonic:'S',
+        accelerator:'alt F4'
+      )
+
+      abrir = swing.action(
+        name:'Abrir',
+        closure:this.&abrirAction,
+        mnemonic:'A',
+        accelerator:'ctrl O'
+      )
+
+      def salirAction(event) {
+        frame.dispose()
+      }
+
+      def abrirAction(event) {
+        println "Abriendo"
+      }
+      trainings = [
+          [name: "Groovy", folders: [[name: "El lenguaje dinámico"], [name: "Productividad"],[name: "Grails"]]],
+          [name: "JavaScript", folders: [[name: "jQuery"], [name: "Essentials"]]],
+          [name: "Agil", folders: [[name: "Scrum"], [name: "Kanban"]]],
+          [name: "Spring", folders: [[name: "Spring Batch"], [name: "Spring WebServices"]]]
+      ]
+      JTree trainingTree
+
+
+      frame = swing.frame(title:"Ejemplo de SwingBuilder con Menus", defaultCloseOperation: JFrame.DISPOSE_ON_CLOSE,
+          size: [800, 600], show: true, locationRelativeTo: null) {
+        menuBar {
+          menu('mnemonic':'A','Archivo') {
+            menuItem(action:abrir)
+            separator()
+            menuItem(action:salir)
+          }
+          //glue()
+          menu('Edicion') {
+            menuItem('Copiar')
+            menuItem('Pegar')
+          }
+        }
+        splitPane {
+                scrollPane(constraints: "left", preferredSize: [160, -1]) {
+                    trainingTree = tree(rootVisible: false)
+                }
+                splitPane(orientation:JSplitPane.VERTICAL_SPLIT, dividerLocation:280) {
+                    scrollPane(constraints: "top") { asistenteTable = table() }
+                }
+            }
+            ["Asistente", "Empresa"].each { asistenteTable.model.addColumn(it) }
+
+      }
+
+      trainingTree.model.root.removeAllChildren()
+      trainings.each {course ->
+          def node = new TreeNode(course.name)
+          course.folders.each { folder -> node.add(new TreeNode(folder.name)) }
+          trainingTree.model.root.add(node)
+      }
+      trainingTree.model.reload(trainingTree.model.root)
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> edtSwingBuilder.groovy</h4>
+    <pre class="brush: groovy">
+      import groovy.swing.SwingBuilder
+
+      import java.awt.BorderLayout
+      import javax.swing.JFrame
+      import java.awt.GridLayout
+      import java.awt.Color
+
+      SwingBuilder.build {
+        myFrame = frame(title: 'Hilos en Swing', pack: true, defaultCloseOperation: JFrame.EXIT_ON_CLOSE) {
+          borderLayout()
+          def lazyPanelsParent
+          scrollPane(constraints: BorderLayout.CENTER, preferredSize: [500, 300]) {
+            lazyPanelsParent = panel(layout: new GridLayout(0, 1, 5, 5)) {
+            }
+          }
+          panel(constraints: BorderLayout.NORTH) {
+            button(text: 'Crear un panel', actionPerformed: {
+              println 'Presionado'
+              buildInTheBackground(lazyPanelsParent)
+              })
+          }
+        }
+        myFrame.show()
+      }
+
+      def buildInTheBackground(parentPanel) {
+        SwingBuilder.build {
+          def statusMessage = label(border: lineBorder(color:Color.RED, thickness:4))
+
+          def setStatus = { String msg -> println msg; statusMessage.setText(msg) }
+
+          setStatus('Construyendo...')
+
+          parentPanel.add(statusMessage, 0)
+
+          parentPanel.validate()
+
+          doOutside {
+            edt { setStatus('Trabajando por fuera') }
+
+            // Un trabajo pesado...
+            sleep(3000)
+            def powerData = [* 0..5].collect {power -> [* 0..10].collect { Math.pow(it, power) } }
+
+            def newPanel = panel(minimumSize: [250, 250], border: lineBorder(color:Color.BLUE, thickness:2)) {
+              edt { setStatus("Construyendo un nuevo panel") }
+
+              sleep(3000)
+              tableLayout {
+                powerData.each {row -> tr { row.each {cell -> td { textField(cell.toString()) } } } }
+              }
+            }
+
+            edt { setStatus("Nuevo panel listo!") }
+
+            doLater {
+              setStatus("Agregando un nuevo panel")
+              def idx = (parentPanel.components as List).indexOf(statusMessage)
+              parentPanel.remove(idx)
+              parentPanel.add(newPanel, idx)
+              parentPanel.validate()
+
+              setStatus("Construido...:)")
+            }
+          }
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+  Te recomendamos que consultes la documentación del <a href="http://groovy.codehaus.org/gapi/groovy/swing/SwingBuilder.html">SwingBuilder</a> y del <a href="http://docs.oracle.com/javase/tutorial/uiswing/concurrency/dispatch.html">EDT(Event Dispatch Thread)</a>.</a>.
+  </p>
+</div>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>

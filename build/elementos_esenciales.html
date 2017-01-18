@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>. : Entrenamiento - MakingDevs : .</title>
+  
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/starter-template.css">
+  <link rel="stylesheet" href="css/docs.css">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="img/logo.png" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="toc.html">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+    <div class="container">
+      <h1>El lenguaje dinámico Groovy</h1>
+      <div style="height:70px"> 
+        <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+        <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+        <p id="p3">“Making best code, through better developers”</p>
+      </div>
+    </div>
+ </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      <h1>Elementos esenciales de Groovy</h1>
+<hr/>
+<div id="1"></div><h2>Sintaxis y azúcar sintáctica</h2><h3>Comentarios</h3><p>Es posible crear scripts ejecutables portables a plataformas Linux o Unix</p>
+<div class="row">
+  <div class="col-md-12">
+    <pre class="brush: shell">
+      #!/usr/bin/env groovy
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <pre class="brush: groovy">
+      // Denota comentarios de una sola línea
+      /*
+        Comentarios multilínea
+      */ 
+      /**
+      * Comentarios para Javadoc son tratados de la misma forma 
+      * que los comentarios multilínea, pero son soportados por Groovydoc
+      */ 
+    </pre>
+  </div>
+</div><h3>Imports automáticos</h3>
+<div class="row">
+  <div class="col-md-12">
+    <pre class="brush: groovy">
+      // Groovy importa de manera ímplicita 6 paquetes y 2 clases
+      import java.lang.*
+      import java.util.*
+      import java.net.*
+      import java.io.*
+      import java.math.BigInteger 
+      import java.math.BigDecimal 
+      import groovy.lang.*
+      import groovy.util.*
+    </pre>
+  </div>
+</div><h3>Paréntesis</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Paréntesis</h4>
+    <pre class="brush: groovy">
+      // El uso de paréntesis es opcional cuando el método invocado tiene por lo menos un argumento
+      println("Hola mundo")
+      println "hola mundo"
+      // "MakingDevs".toUpperCase // NO es válido
+      "MakingDevs".toUpperCase()
+    </pre>
+  </div>
+</div><h3>&lsquo;return&rsquo; opcional</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> return opcional</h4>
+    <pre class="brush: groovy">
+      class Calculadora{
+        def operacionCompleja(){
+          4*5**6/89+13
+        }
+      }
+      def c = new Calculadora()
+      c.operacionCompleja()
+    </pre>
+  </div>
+</div><h3>Manejo de excepciones</h3>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Manejo de excepciones</h4>
+    <pre class="brush: java">
+      // Java
+      try { 
+        Thread.sleep(5000);
+      } catch(InterruptedException ex) {
+        
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <pre class="brush: groovy">
+      // Groovy
+      Thread.sleep 5000
+    </pre>
+  </div>
+</div><h3>Sobrecarga de operadores</h3><p><strong>Sobrecarga</strong> se refiere al concepto orientado a objetos de tener tipos que especifican un comportamiento y subtipos que sobreescriben este comportamiento para hacerlo más específico. Cuando un lenguaje basa los operadores en llamadas a métodos y permite que dichos métodos sean sobrescritos, dicha aproximación se llama <strong>sobrecarge</strong>.</p>
+<h4> Operadores basados en métodos</h4>
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th>Operador</th>
+      <th>Nombre</th>
+      <th>Método</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>a + b</td>
+      <td>Suma</td>
+      <td>a.plus(b)</td>
+    </tr>
+    <tr>
+      <td>a - b</td>
+      <td>Resta</td>
+      <td>a.minus(b)</td>
+    </tr>
+    <tr>
+      <td>a * b</td>
+      <td>Multiplicación</td>
+      <td>a.multiply(b)</td>
+    </tr>
+    <tr>
+      <td>a / b</td>
+      <td>División</td>
+      <td>a.div(b)</td>
+    </tr>
+    <tr>
+      <td>a % b</td>
+      <td>Módulo</td>
+      <td>a.mod(b)</td>
+    </tr>
+    <tr>
+      <td>a++<br/>++a</td>
+      <td>Post incremento<br/>Pre incremento</td>
+      <td>def v = a; a=next(); v<br/>a = a.next(); a</td>
+    </tr>
+    <tr>
+      <td>a--<br/>--a</td>
+      <td>Post decremento<br/>Pre decremento</td>
+      <td>def v = a; a=previous(); v<br/>a = a.previous(); a</td>
+    </tr>
+    <tr>
+      <td>a == b</td>
+      <td>Igual</td>
+      <td>if (a implements Comparable) { a.compareTo(b) == 0 } else { a.equals(b) }</td>
+    </tr>
+    <tr>
+      <td>a != b</td>
+      <td>No igual</td>
+      <td>! a== b</td>
+    </tr>
+    <tr>
+      <td>a > b</td>
+      <td>Mayor que</td>
+      <td>a.compareTo(b)</td>
+    </tr>
+    <tr>
+      <td>a >= b</td>
+      <td>Mayor igual que</td>
+      <td>a.compareTo(b)</td>
+    </tr>
+    <tr>
+      <td>a < b</td>
+      <td>Menor que</td>
+      <td>a.compareTo(b)</td>
+    </tr>
+    <tr>
+      <td>a <= b</td>
+      <td>Menor igual que</td>
+      <td>a.compareTo(b)</td>
+    </tr>
+  </tbody>
+</table>
+<div class="alert alert-info">
+  <strong><i class="icon-terminal"></i> La lista completa!</strong> La encuentras en la <a href="http://groovy.codehaus.org/Operator+Overloading" class="alert-link">documentación de Groovy</a>.
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file-alt"></i> SumCash.groovy</h4>
+    <pre class="brush: groovy">
+      class Money{
+        int amount
+        String currency
+
+        Money plus(Money other){
+          if(null == other) return this
+          if(other.currency != currency){
+            throw new IllegalArgumentException("Invalid operation[$other.currency + $currency]")
+          }
+          return new Money(amount:amount + other.amount, currency:currency)
+        }
+
+        String toString(){
+          "\$ $amount $currency"
+        }
+      }
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Sobrecarga de operadores</h4>
+    <pre class="brush: groovy">
+      Money cuenta1 = new Money(amount:10,currency:'MXN')
+      Money cuenta2 = new Money(amount:20,currency:'MXN')
+      println cuenta1 + cuenta2
+    </pre>
+  </div>
+</div><h3>Operador de navegación segura, referencias seguras</h3><p>Cuando una referencia no apunta a ningún objeto en específico, su valor es <em>null</em>. Cuando llamamos un método o accesamos a un atributo de una referencia nula un <em>NullPointerException</em> nos revienta en la cara.</p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Null safe</h4>
+    <pre class="brush: groovy">
+      def s = null
+      s.reverse() // NPE
+      s?.reverse() // null
+      s?.reverse()?.charAt(0)
+    </pre>
+  </div>
+</div><h3>Aserciones</h3><p>Es una manera de evaluar una expresión o la ejecución de una instrucción y se refiere a la palabra reservada &rsquo;‘&rsquo;assert’ que siempre evalua a true.</p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> assert</h4>
+    <pre class="brush: groovy">
+      assert(true)
+      assert 1 == 1
+      def x = 1; assert x == 1
+      def y = 2; assert y == 2
+      assert ('text'*3<<'hello').size() == 4*3+5
+    </pre>
+  </div>
+</div><h3>Groovy truth</h3><p>Es una abreviatura para evaluar cuando algo es verdadero. En Java solo se evalua el tipo boolean, sin embargo, en Groovy podemos evaluar si es null o si el tamaño es cero, o bien, esta vacío&hellip;</p>
+<h4> Secuencia de reglas usadas para evaluar una prueba booleana</h4>
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th>Tipo en runtime</th>
+      <th>Criterio de evaluación para ser cierto(true)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Boolean</td>
+      <td>Corresponde al valor booleano 'true'</td>
+    </tr>
+    <tr>
+      <td>Matcher</td>
+      <td>The matcher tiene un coincidencia</td>
+    </tr>
+    <tr>
+      <td>Collection</td>
+      <td>La colección no es vacía</td>
+    </tr>
+    <tr>
+      <td>Map</td>
+      <td>El mapa no está vacío</td>
+    </tr>
+    <tr>
+      <td>String, GString</td>
+      <td>El String no es vacío</td>
+    </tr>
+    <tr>
+      <td>Number, Character</td>
+      <td>El valor no es cero</td>
+    </tr>
+    <tr>
+      <td>Cualquier otro</td>
+      <td>El objeto referenciado no es null</td>
+    </tr>
+  </tbody>
+</table>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-terminal"></i> </h4>
+    <pre class="brush: groovy">
+      assert true
+      assert !false
+      assert "a"
+      assert !""
+      assert 1.1
+      assert 1
+      assert !0
+      assert -1.2
+      assert ! null
+      assert ![]
+      assert ![:]
+    </pre>
+  </div>
+</div><h3>Primitivos como objetos</h3>
+<blockquote>
+  <p>"Todo en Groovy es un objeto, incluso lo que declaras como primitivos."</p>
+</blockquote>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-terminal"></i> </h4>
+    <pre class="brush: groovy">
+      int a = 1
+      double b = 2.0
+      float c = 3.0
+      char d = 'a'
+      boolean e = true
+
+      println a.class 
+      println b.class
+      println c.class
+      println d.class
+      println e.class // meh!
+    </pre>
+  </div>
+</div><h3>Strings</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> theStrings.groovy</h4>
+    <pre class="brush: groovy">
+      println "he said 'cheese' once"
+      println 'he said "cheese!" again'
+
+      //Concatenacion
+      a = "world"
+      print "hello " + a + "\n"
+
+      //Uso de Strings con triples comillas
+      def name = "MakingDevs"
+      def text = """\
+      Hola $name
+      como estas?
+      """
+
+      assert text != null
+      println(text)
+
+      //Uso de GStrings
+      println new Date()
+      x = "Actualmente es ${ new Date() }"
+      assert x.values[0] instanceof Date
+      println x
+
+      def s = "String "
+      def g = "GString creado a las ${new Date()}"
+      def x = s + g
+      assert s instanceof String
+      assert g instanceof GString
+      assert x instanceof String
+    </pre>
+  </div>
+</div>
+<div class="alert alert-success">
+  <strong><i class="icon-thumbs-up"></i> Adicionalmente!</strong> Siempre es de ayuda tener la <a href="http://groovy.codehaus.org/JN1525-Strings" class="alert-link">documentación de String en Groovy</a>.
+</div><h3>Más operadores(==, &lt;=&gt;, ?:)</h3>
+<div class="row">
+  <div class="col-md-4">
+    <h4><i class="icon-terminal"></i> Equals ==</h4>
+    <pre class="brush: groovy">
+      assert new BigDecimal(90) == 90
+      assert "MakingDevs" == "MakingDevs"
+
+      class Telefono{ 
+        String tipo 
+        boolean equals(Telefono otroTelefono){
+          println "Comparando"
+          tipo == otroTelefono.tipo
+        }
+      }
+      def t1 = new Telefono()
+      t1.tipo = 'Smartphone'
+      def t2 = new Telefono()
+      t2.tipo = 'Cellphone'
+      assert t1 != t2
+    </pre>
+    A diferencia de Java, el operador == ejecuta el método equals o compareTo si Comparable está implementado
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-terminal"></i> Spacheship <=> </h4>
+    <pre class="brush: groovy">
+      assert 5 <=> 5 == 0
+      assert 10 <=> 5 == 1
+      assert 10 <=> 20 == -1
+      assert "MakingDevs" <=> "MakingDevs" == 0
+      assert "MakingDevs" <=> "MD" == 1
+      assert "MD" <=> "MakingDevs" == -1
+    </pre>
+    Es una forma de ejecutar el método compareTo()
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-terminal"></i> Elvis ?: </h4>
+    <pre class="brush: groovy">
+      (x,y) = ['v','d']
+      if(x != null && x.size() > 0) x else y
+      if(x && x.size()) x else y // Groovy Truth
+      if(x) x else y // Groovy Truth
+      x ? x : y
+      x ?: y
+    </pre>
+    Es una abreviatura al operador ternario de Java para manejo de dos valores
+  </div>
+</div><h3>Expresiones regulares</h3><p>Groovy cuenta con operadores que aportan mucha flexibilidad y facilidad de uso a las expresiones regulares:</p>
+<ul>
+  <li>El operador de expresiones regulares find =~</li>
+  <li>El operador de expresiones regulares match ==~</li>
+  <li>El operador de expresiones regulares pattern ~String</li>
+</ul>
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-terminal"></i> String regex</h4>
+    <pre class="brush: groovy">
+      assert 'abcde'.find{ it > 'b' } == 'c' 
+      assert 'abcde'.findAll{ it > 'b' } == ['c', 'd', 'e']
+      assert 'abcde'.findIndexOf{ it > 'c' } == 3 
+      assert 'abcde'.every{ it < 'g' } && ! 'abcde'.every{ it < 'c' }
+      assert 'abcde'.any{ it > 'c' } && ! 'abcde'.any{ it > 'g' }
+      assert 'MakingDevs'.replace('e','3') == 'MakingD3vs'
+      assert 'AbcdE'.equalsIgnoreCase('aBCDe')
+
+      def s= new String( new StringBuffer('abcdefg') )
+      assert s == 'abcdefg'
+      assert s.contains('def')
+      assert s.contentEquals('abcdefg')
+      assert s.contentEquals( new StringBuffer('abcdefg') )
+      def s2= s.replace('def', 'xyz')
+      assert s2 == 'abcxyzg'
+    </pre>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-terminal"></i> find y match</h4>
+    <pre class="brush: groovy">
+      def finder = ('groovy' =~ /gr.*/)
+      assert finder instanceof java.util.regex.Matcher
+
+      def matcher = ('groovy' ==~ /gr.*/)
+      assert matcher instanceof Boolean
+
+      assert 'Groovy rocks!' =~ /Groovy/  // =~ en condicional es un boolean
+      assert !('Groovy rocks!' ==~ /Groovy/)  // ==~ coincidencia exacta
+      assert 'Groovy rocks!' ==~ /Groovy.*/
+
+      def cool = /gr\w{4}/  
+      def findCool = ('groovy, java and grails rocks!' =~ /$cool/)
+      assert 2 == findCool.count
+      assert 2 == findCool.size()
+      assert 'groovy' == findCool[0]
+      assert 'grails' == findCool.getAt(1)
+
+      def group = ('groovy and grails, ruby and rails' =~ /(\w+) and (\w+)/)
+      assert group.hasGroup()
+      assert 2 == group.size()
+      assert ['groovy and grails', 'groovy', 'grails'] == group[0]
+      assert 'rails' == group[1][2]
+
+      assert 'Hola MakingDevs' == ('Saludos MakingDevs' =~ /Saludos/).replaceFirst('Hola')
+    </pre>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-terminal"></i> Pattern ~String</h4>
+    <pre class="brush: groovy">
+      import java.util.regex.Pattern
+
+      def simplePattern = ~'[ab]test\\d'
+      assert Pattern == simplePattern.class
+
+      def quotedPattern = ~"string\$"
+      assert quotedPattern instanceof Pattern
+
+      def slashy = ~/slashy \d+ value/
+      assert slashy instanceof Pattern
+
+      // Patrón negado
+      def negateSlashy = /${'hello'}GString$/.negate()
+      assert negateSlashy instanceof Pattern
+      def s = 'more'
+      def curlySlashy = ~"$s GString"
+      assert curlySlashy instanceof Pattern
+
+      def testPattern = ~'t..t'
+      assert testPattern.matcher("test").matches()
+
+      // Sobrecarga de operadores
+      def p = ~/\w+vy/
+      assert p.isCase('groovy')
+      switch ('groovy') {
+        case ~/java/: assert false; break;
+        case ~/gr\w{4}/: assert true; break;
+        default: assert false
+      }
+    </pre>
+  </div>
+</div>
+<div class="alert alert-success">
+  <strong><i class="icon-thumbs-up"></i> Profundiza!</strong> Te recomendamos: <a href="http://groovy.codehaus.org/Regular+Expressions" class="alert-link">Regular expressions</a>, <a href="http://groovy.codehaus.org/Tutorial+4+-+Regular+expressions+basics" class="alert-link">Regular expressions basics</a> y <a href="http://groovy.codehaus.org/Tutorial+5+-+Capturing+regex+groups" class="alert-link">Regular expressions</a> 
+</div>
+<div id="2"></div><h2>Compatibilidad con los elementos de Java</h2><p>Es importante considerar que los elementos que existen actualmente en Java(incluyendo los agregados de Java 5), siguen funcionando y siendo respetados, sin embargo, Groovy agrega una forma más elegante de usarlos.</p><h3>Enums</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> issueEnum.groovy</h4>
+    <pre class="brush: groovy">
+      enum IssuePriority{
+        URGENT,HIGH,MEDIUM,LOW,PLEASE,NO_MATTERS
+      }
+
+      def issueNotifier(priority){
+        print "Notificando incidencia..."
+        switch(priority){
+          case[IssuePriority.URGENT,IssuePriority.HIGH]:
+            println "Se cayó la App, ¿es viernes?..."
+            break
+          case IssuePriority.PLEASE..IssuePriority.MEDIUM:
+            println "Podemos dejarlo para después?..."
+            break
+          case IssuePriority.NO_MATTERS:
+            println "Luego lo hacemos..."
+            break
+        }
+      }
+
+      issueNotifier(IssuePriority.URGENT)
+      issueNotifier(IssuePriority.MEDIUM)
+      issueNotifier(IssuePriority.NO_MATTERS)
+
+      println "Hay que escalar una incidencia, los niveles son: "
+      for(priority in IssuePriority.values()){
+        print "$priority "
+      }
+    </pre>
+  </div>
+</div><h3>Varargs</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> varargs.groovy</h4>
+    <pre class="brush: groovy">
+      def varargsJava(int a, int... b){
+        println "Pasaste $a y $b"
+      }
+
+      def metodoConArray(int a, int[] b){
+        println "Pasaste $a y $b"
+      }
+
+      varargsJava(1,2,3,4,5)
+      metodoConArray(1,2,3,4,5)
+    </pre>
+  </div>
+</div><h3>Genéricos</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> genericos.groovy</h4>
+    <pre class="brush: groovy">
+      class Genericos{
+        def usaLista(){
+          ArrayList&lt;Integer&gt; list = new ArrayList&lt;Integer&gt;();
+          list.add(1);
+          list.add(2.0); // ????
+          list.add("hello"); // ???
+          list
+        }
+      }
+      def g = new Genericos()
+      g.usaLista()
+      // Necesitamos compilación estática...
+    </pre>
+  </div>
+</div><h3>Static imports</h3>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> static imports</h4>
+    <pre class="brush: groovy">
+      import static java.lang.Math.*
+      import static Math.random as rand
+      import groovy.lang.ExpandoMetaClass as EMC
+
+      println cos(PI/2)
+      double value = rand()
+      def metaClass = new EMC(Integer)
+      assert metaClass.getClass().name == 'groovy.lang.ExpandoMetaClass'
+    </pre>
+  </div>
+</div><h3>Anotaciones</h3><p>Todas las anotaciones conocidas en Java y las que usas en algún Framework son respetadas y no sufren ninguna modificación.</p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> anotaciones</h4>
+    <pre class="brush: groovy">
+      import static org.junit.Assert.assertEquals
+      class SimpleUnitTest {
+        @Test
+        void shouldAdd() {
+          assertEquals("Groovy should add correctly", 2, 1 + 1)
+        }
+      }
+    </pre>
+  </div>
+</div>
+<div id="3"></div><h2>Tipado dinámico</h2>
+<blockquote>
+  <p>Until real software engineering is developed, the next best practice is to develop with a dynamic system that has extreme late binding in all aspects.</p>
+  <small>Alan Kay</small>
+</blockquote><p>En el tipado dinámico, en runtime los tipos son inferidos y los métodos y sus argumentos son checados. Con esta habilidad podemos inyectar comportamiento en las clases en tiempo de ejecución, haciendo el código más extensible que con el tipado estático estricto.</p><p>Venimos confiando en la &ldquo;seguridad&rdquo; del chequeo de tipos en tiempo de compilación. Sin embargo, <em>seguridad</em> en la <em>seguridad de tipos</em> es tan consolador como la <em>seguridad</em> en la <em>seguridad social</em>.</p><p>En el tipado dinámico dejamos que el lenguaje infiera los tipos basados en el contexto. ¿Cuál es la ventaja? ¿Vale la pena renunciar a los beneficios de la verificación del tipo en el tiempo de compilación o edición de código(IDE)?</p><p>Podemos escribit llamadas a métodos sobre objetos sin profundizar en los detalles en el momento. Durante la ejecución los objetos responden dinámicamente a los métodos o los mensajes. Podemos lograr este comportamiento dinámico en cierta medida con el polimorfismo en lenguajes de tipado estático. Sin embargo, la mayoría de los lenguajes de tipado estático usan herencia para el polimorfismo. El verdadero polimorfismo no se preocupa de los tipos, manda un mensaje a un objeto, y en tiempo de ejecución se da cuenta de la implementación apropiada que tiene que usar.</p>
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> tipadoDinamico.groovy</h4>
+    <pre class="brush: groovy">
+      import org.codehaus.groovy.runtime.typehandling.GroovyCastException as GCE
+
+      def variableDinamica
+      variableDinamica = 1 ; assert variableDinamica.class == Integer
+      variableDinamica = 2f ; assert variableDinamica.class == Float
+      variableDinamica = 3d ; assert variableDinamica.class == Double
+      variableDinamica = 3g ; assert variableDinamica.class == BigInteger
+      variableDinamica = 'a' ; assert variableDinamica.class == String
+      variableDinamica = true ; assert variableDinamica.class == Boolean
+
+      BigDecimal variableTipada = 3
+      assert variableTipada.class == BigDecimal.class
+      variableTipada = "A"
+      assert variableTipada.class == BigDecimal.class
+      try {
+        variableTipada = "Hola"
+      } catch(GCE e){
+        println e.message
+      }
+    </pre>
+  </div>
+</div><p>Si investigamos acerca de los lenguajes dinámicos encontraremos que implica un tipado débil de manera rotunda. La verdad es más compleja. Por ejemplo, a pesar de ser un lenguaje dinámico, Groovy es un lenguaje fuertemente tipado. Y lo era incluso antes de la liberación de Groovy 2 y la comprobación de tipos estáticos. De hecho, Groovy es un lenguaje dinámico de tipado opcional. La diferencia es que los tipos en Groovy son muy importantes y están en el corazón del sistema de distribución dinámica.</p>
+<blockquote>
+  <p>Si camina como pato y grazna como pato entonces es un pato. Sin embargo, si camina como pato y necesita baterias entonces tenemos la abstracción incorrecta.</p>
+  <small>duckTyping.groovy</small>
+</blockquote><p><img src="img/Typed.png" alt="alt groovyConsole"/></p>
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/shCore.js"></script>
+  <script type="text/javascript" src="js/shBrushJScript.js"></script>
+  <script type="text/javascript" src="js/shBrushGroovy.js"></script>
+  <script type="text/javascript" src="js/shBrushCss.js"></script>
+  <script type="text/javascript" src="js/shBrushJava.js"></script>
+  <script type="text/javascript" src="js/shBrushPlain.js"></script>
+  <script type="text/javascript" src="js/shBrushSql.js"></script>
+  <script type="text/javascript" src="js/shBrushXml.js"></script>
+  <script type="text/javascript" src="js/shBrushBash.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/shCoreDefault.css"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>
