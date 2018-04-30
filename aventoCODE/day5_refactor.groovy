@@ -10,13 +10,13 @@ file.eachLine() { line ->
 
 Boolean isNiceTheString(String line){
   Boolean isNice = false
-  def numberVocal = line.findAll("[aeiou]?")
+  def numberVocal = line.findAll(~/[aeiou]?/)
   numberVocal?.removeAll([""])
-  def doubleLetters = line.findAll("((aa)|(bb)|(cc)|(dd)|(ee)|(ff)|(gg)|(hh)|(ii)|(jj)|(kk)|(ll)|(mm)|(nn)|(oo)|(pp)|(qq)|(rr)|(ss)|(tt)|(uu)|(vv)|(xx)|(yy)|(zz))?")
+  def doubleLetters = line.findAll(~/(.)\1+/)
   doubleLetters?.removeAll("")
-  def notString = line.findAll("((ab)|(cd)|(pq)|(xy))?")
+  def notString = line.findAll(~/((ab)|(cd)|(pq)|(xy))?/)
   notString.removeAll([""])
-  if ( doubleLetters && numberVocal && !notString){
+  if ( doubleLetters && numberVocal.size() > 2 && !notString){
     isNice = true
   }
   isNice
